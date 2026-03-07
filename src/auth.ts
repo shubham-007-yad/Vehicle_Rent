@@ -3,30 +3,28 @@ import Credentials from "next-auth/providers/credentials";
 import connectDB from "@/lib/db";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
+import { authConfig } from "./auth.config";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   providers: [
     Credentials({
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-      authorize: async (credentials) => {
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null;
+
         await connectDB();
-        const user = await User.findOne({ email: credentials?.email });
+        const user = await User.findOne({ email: credentials.email });
 
         if (!user || !user.password) {
-          throw new Error("Invalid credentials.");
+          return null;
         }
 
         const isValid = await bcrypt.compare(
-          credentials?.password as string,
+          credentials.password as string,
           user.password
         );
 
-        if (!isValid) {
-          throw new Error("Invalid credentials.");
-        }
+        if (!isValid) return null;
 
         return {
           id: user._id.toString(),
@@ -37,21 +35,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
-  callbacks: {
-    jwt({ token, user }) {
-      if (user) {
-        token.role = (user as any).role;
-      }
-      return token;
-    },
-    session({ session, token }) {
-      if (session.user) {
-        (session.user as any).role = token.role;
-      }
-      return session;
-    },
-  },
-  pages: {
-    signIn: "/login",
-  },
 });

@@ -8,7 +8,10 @@ export interface IVehicle extends Document {
   baseRatePerDay: number;
   status: "Available" | "On-Trip" | "Maintenance";
   lastKmReading: number;
-  fuelLevel: number; // 0 to 100 or specific units
+  fuelLevel: number;
+  lastServiceKm: number;
+  insuranceExpiry: Date;
+  pucExpiry: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -27,6 +30,9 @@ const VehicleSchema: Schema = new Schema(
     },
     lastKmReading: { type: Number, required: true, default: 0 },
     fuelLevel: { type: Number, required: true, default: 100 },
+    lastServiceKm: { type: Number, required: true, default: 0 },
+    insuranceExpiry: { type: Date },
+    pucExpiry: { type: Date },
   },
   { timestamps: true }
 );

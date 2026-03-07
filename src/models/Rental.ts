@@ -5,7 +5,7 @@ export interface IRental extends Document {
   customerPhone: string;
   aadhaarNumber?: string;
   dlNumber?: string;
-  idPhotoUrl: string; // Cloudinary URL
+  idPhotoUrl: string[]; // Array of Cloudinary URLs
   vehicleId: mongoose.Types.ObjectId;
   startTime: Date;
   expectedEndTime: Date;
@@ -20,8 +20,12 @@ export interface IRental extends Document {
   damageCharges: number;
   fuelCharges: number;
   totalAmount: number;
+  rentPaidAtStart?: boolean;
+  adjustFromDeposit?: boolean;
+  paymentMethod?: "Cash" | "UPI" | "GPay" | "PhonePe" | "Mixed";
+  isDepositRefunded?: boolean;
   paymentStatus: "Pending" | "Paid";
-  status: "Active" | "Completed" | "Cancelled";
+  status: "Active" | "Pending-Payment" | "Completed" | "Cancelled";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -32,7 +36,7 @@ const RentalSchema: Schema = new Schema(
     customerPhone: { type: String, required: true },
     aadhaarNumber: { type: String },
     dlNumber: { type: String },
-    idPhotoUrl: { type: String, required: true }, // Cloudinary URL
+    idPhotoUrl: { type: [String], required: true }, // Array of Cloudinary URLs
     vehicleId: { type: Schema.Types.ObjectId, ref: "Vehicle", required: true },
     startTime: { type: Date, default: Date.now, required: true },
     expectedEndTime: { type: Date, required: true },
@@ -47,6 +51,13 @@ const RentalSchema: Schema = new Schema(
     damageCharges: { type: Number, default: 0 },
     fuelCharges: { type: Number, default: 0 },
     totalAmount: { type: Number, default: 0 },
+    rentPaidAtStart: { type: Boolean, default: false },
+    adjustFromDeposit: { type: Boolean, default: false },
+    paymentMethod: {
+      type: String,
+      enum: ["Cash", "UPI", "GPay", "PhonePe", "Mixed"],
+    },
+    isDepositRefunded: { type: Boolean, default: false },
     paymentStatus: {
       type: String,
       enum: ["Pending", "Paid"],
@@ -54,11 +65,16 @@ const RentalSchema: Schema = new Schema(
     },
     status: {
       type: String,
-      enum: ["Active", "Completed", "Cancelled"],
+      enum: ["Active", "Pending-Payment", "Completed", "Cancelled"],
       default: "Active",
     },
   },
   { timestamps: true }
 );
 
-export default mongoose.models.Rental || mongoose.model<IRental>("Rental", RentalSchema);
+// Bust the model cache in development to ensure schema changes are picked up
+if (mongoose.models.Rental) {
+  delete mongoose.models.Rental;
+}
+
+export default mongoose.model<IRental>("Rental", RentalSchema);
