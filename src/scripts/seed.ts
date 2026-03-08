@@ -108,7 +108,7 @@ async function seed() {
       await Rental.create({
         customerName: "Rahul Sharma",
         customerPhone: "9876543210",
-        idPhotoUrl: "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg",
+        idPhotoUrl: ["https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg"],
         vehicleId: classic350._id,
         startTime: new Date(Date.now() - 24 * 60 * 60 * 1000), // Started yesterday
         expectedEndTime: new Date(Date.now() - 2 * 60 * 60 * 1000), // Overdue
@@ -126,7 +126,7 @@ async function seed() {
       await Rental.create({
         customerName: "Amit Kumar",
         customerPhone: "8888877777",
-        idPhotoUrl: "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg",
+        idPhotoUrl: ["https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg"],
         vehicleId: dio._id,
         startTime: new Date(Date.now() - 4 * 60 * 60 * 1000), // Started 4h ago
         expectedEndTime: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000), // Due in 20 days

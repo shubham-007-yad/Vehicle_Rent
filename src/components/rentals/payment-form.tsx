@@ -169,7 +169,7 @@ export function PaymentForm({ rental }: PaymentFormProps) {
           
           <div class="section-title bold uppercase">Billing Summary</div>
           <div class="flex"><span>Rental Charges:</span> <span>₹${baseRent.toLocaleString("en-IN")}</span></div>
-          ${lateFees > 0 ? `<div class="flex"><span>Late Returns (${calculateLateFees(rental).hoursLate}h):</span> <span>₹${lateFees.toLocaleString("en-IN")}</span></div>` : ""}
+          ${lateFees > 0 ? `<div class="flex"><span>Late Returns:</span> <span>₹${lateFees.toLocaleString("en-IN")}</span></div>` : ""}
           ${damage > 0 ? `<div class="flex text-red-600"><span>Damage Charges:</span> <span>₹${damage.toLocaleString("en-IN")}</span></div>` : ""}
           ${fuel > 0 ? `<div class="flex"><span>Fuel Adjustments:</span> <span>₹${fuel.toLocaleString("en-IN")}</span></div>` : ""}
           

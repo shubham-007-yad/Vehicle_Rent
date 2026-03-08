@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-export interface IVehicle extends Document {
+export interface IVehicle extends Omit<Document, 'model'> {
   make: string;
   model: string;
   plateNumber: string;

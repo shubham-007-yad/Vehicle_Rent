@@ -62,7 +62,7 @@ export async function createRental(data: any) {
     const rawPhotos = Array.isArray(data.idPhotoUrl) ? data.idPhotoUrl : [data.idPhotoUrl];
     
     // STRICT GUARD: Block any non-https URLs (prevents blob leaks)
-    const validPhotos = rawPhotos.filter(url => url.startsWith("https://"));
+    const validPhotos = rawPhotos.filter((url: string) => url.startsWith("https://"));
     
     if (validPhotos.length === 0) {
       return { error: "Permanent KYC photos are required. Please re-snap the photo." };

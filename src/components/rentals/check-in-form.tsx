@@ -56,7 +56,7 @@ const formSchema = z.object({
   idPhotoUrl: z.array(z.string()).min(1, "At least one ID photo is required"),
   startKm: z.number().min(0, "Invalid KM reading"),
   expectedEndTime: z.date({
-    required_error: "Return date is required",
+    message: "Return date is required",
   }),
   depositAmount: z.number().min(0, "Deposit amount required"),
   startFuel: z.number().min(1).max(5),
