@@ -361,7 +361,7 @@ export function ActiveTripsList({ initialRentals }: ActiveTripsListProps) {
                 <Label htmlFor="paymentStatus" className="text-xs font-bold uppercase">Payment Status</Label>
                 <Select 
                   value={returnForm.paymentStatus} 
-                  onValueChange={(val: any) => setReturnForm({...returnForm, paymentStatus: val})}
+                  onValueChange={(val) => setReturnForm({...returnForm, paymentStatus: (val as "Paid" | "Pending") || "Paid"})}
                 >
                   <SelectTrigger id="paymentStatus">
                     <SelectValue />

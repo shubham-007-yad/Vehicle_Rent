@@ -209,7 +209,7 @@ export function CheckInForm({ availableVehicles }: { availableVehicles: any[] })
                       <FormControl>
                         <Select 
                           value={String(field.value)} 
-                          onValueChange={v => field.onChange(Number(v))}
+                          onValueChange={v => field.onChange(Number(v || "3"))}
                         >
                           <SelectTrigger>
                             <SelectValue />
@@ -313,10 +313,13 @@ export function CheckInForm({ availableVehicles }: { availableVehicles: any[] })
                       <Select 
                         value={field.value}
                         onValueChange={(val) => {
+                          if (!val) return;
                           field.onChange(val);
                           const v = availableVehicles.find(v => v._id === val);
-                          setSelectedVehicle(v);
-                          form.setValue("startKm", v.lastKmReading);
+                          if (v) {
+                            setSelectedVehicle(v);
+                            form.setValue("startKm", v.lastKmReading);
+                          }
                         }} 
                       >
                         <FormControl>

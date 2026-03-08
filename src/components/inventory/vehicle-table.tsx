@@ -92,7 +92,7 @@ export function VehicleTable({ initialVehicles }: { initialVehicles: Vehicle[] }
           />
         </div>
         <div className="flex items-center gap-3 w-full md:w-auto">
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value || "all")}>
             <SelectTrigger className="w-full md:w-40">
               <SelectValue placeholder="Status Filter" />
             </SelectTrigger>

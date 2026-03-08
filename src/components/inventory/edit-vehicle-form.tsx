@@ -202,7 +202,7 @@ export function EditVehicleForm({ vehicle, actualRevenue = 0 }: { vehicle: any, 
               <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label className="text-xs font-bold uppercase text-muted-foreground">Current Status</Label>
-                  <Select value={status} onValueChange={setStatus}>
+                  <Select value={status} onValueChange={(value) => setStatus(value || "Available")}>
                     <SelectTrigger className={cn(
                         "h-10 font-bold",
                         status === "Available" ? "border-green-200 bg-green-50/10 text-green-700" :

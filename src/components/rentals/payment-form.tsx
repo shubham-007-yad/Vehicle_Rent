@@ -334,7 +334,7 @@ Safe travels!`;
           <CardContent className="space-y-6">
             <div className="space-y-4">
               <Label className="text-xs font-bold uppercase text-muted-foreground">How did the customer pay?</Label>
-              <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+              <Select value={paymentMethod} onValueChange={(val) => setPaymentMethod(val || "Cash")}>
                 <SelectTrigger id="paymentMethod" className="w-full h-12 text-sm font-bold italic border-2 border-muted hover:border-primary/50 transition-all">
                   <SelectValue placeholder="Select Payment Method" />
                 </SelectTrigger>
