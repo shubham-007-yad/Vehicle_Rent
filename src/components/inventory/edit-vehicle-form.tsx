@@ -45,7 +45,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 
-export function EditVehicleForm({ vehicle }: { vehicle: any }) {
+export function EditVehicleForm({ vehicle, actualRevenue = 0 }: { vehicle: any, actualRevenue?: number }) {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [status, setStatus] = useState(vehicle.status);
@@ -97,49 +97,57 @@ export function EditVehicleForm({ vehicle }: { vehicle: any }) {
   const kmSinceService = Number(formData.lastKmReading) - Number(formData.lastServiceKm);
   const isServiceDue = kmSinceService >= 3000;
 
+  const openDocument = (url?: string) => {
+    if (url) {
+      window.open(url, '_blank');
+    } else {
+      toast.info("Document not uploaded for this vehicle.");
+    }
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24 md:pb-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 md:gap-4">
           <Link 
             href="/dashboard/inventory" 
-            className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "h-10 w-10")}
+            className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "h-9 w-9 md:h-10 md:w-10")}
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-4 w-4 md:h-5 md:w-5" />
           </Link>
-          <div>
-            <h1 className="text-2xl font-bold italic tracking-tight">{formData.model || vehicle.model}</h1>
+          <div className="min-w-0">
+            <h1 className="text-xl md:text-2xl font-bold italic tracking-tight truncate">{formData.model || vehicle.model}</h1>
             <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-xs font-mono uppercase bg-muted px-2 py-0.5 rounded text-muted-foreground border">
+              <span className="text-[10px] md:text-xs font-mono uppercase bg-muted px-2 py-0.5 rounded text-muted-foreground border">
                 {formData.plateNumber || vehicle.plateNumber}
               </span>
-              <Badge variant={status === "Available" ? "success" : status === "On-Trip" ? "destructive" : "warning"} className="text-[10px] uppercase font-bold py-0 h-4">
+              <Badge variant={status === "Available" ? "success" : status === "On-Trip" ? "destructive" : "warning"} className="text-[9px] md:text-[10px] uppercase font-bold py-0 h-4">
                 {status}
               </Badge>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full md:w-auto">
             <Link 
               href="/dashboard/active-trips" 
-              className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-2 h-9")}
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }), "flex-1 md:flex-none gap-2 h-9")}
             >
-              <History size={14} /> View History
+              <History size={14} /> History
             </Link>
             <Button 
               type="submit" 
               form="vehicle-edit-form" 
-              className="gap-2 h-9" 
+              className="flex-1 md:flex-none gap-2 h-9" 
               disabled={isPending}
             >
-              <Save size={14} /> {isPending ? "Saving..." : "Update Fleet Data"}
+              <Save size={14} /> {isPending ? "Saving..." : "Update Fleet"}
             </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Configuration Form */}
+        {/* Main Configuration Form - Stays on top */}
         <div className="lg:col-span-2">
           <form id="vehicle-edit-form" onSubmit={handleSubmit} className="space-y-6">
             <Card className="border-primary/10 shadow-sm overflow-hidden">
@@ -255,32 +263,44 @@ export function EditVehicleForm({ vehicle }: { vehicle: any }) {
                   Document Compliance
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label className="text-xs font-bold uppercase text-muted-foreground">Insurance Expiry</Label>
-                  <div className="relative">
-                    <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                      name="insuranceExpiry" 
-                      type="date" 
-                      value={formData.insuranceExpiry} 
-                      onChange={handleInputChange} 
-                      className="pl-9" 
-                    />
+              <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase text-muted-foreground">Insurance Expiry</Label>
+                    <div className="relative">
+                      <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input 
+                        name="insuranceExpiry" 
+                        type="date" 
+                        value={formData.insuranceExpiry} 
+                        onChange={handleInputChange} 
+                        className="pl-9" 
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase text-muted-foreground italic">Update Insurance Policy (PDF/Image)</Label>
+                    <Input name="insuranceFile" type="file" accept=".pdf,image/*" className="h-8 text-[10px]" />
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="text-xs font-bold uppercase text-muted-foreground">PUC (Pollution) Expiry</Label>
-                  <div className="relative">
-                    <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                      name="pucExpiry" 
-                      type="date" 
-                      value={formData.pucExpiry} 
-                      onChange={handleInputChange} 
-                      className="pl-9" 
-                    />
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase text-muted-foreground">PUC (Pollution) Expiry</Label>
+                    <div className="relative">
+                      <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input 
+                        name="pucExpiry" 
+                        type="date" 
+                        value={formData.pucExpiry} 
+                        onChange={handleInputChange} 
+                        className="pl-9" 
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase text-muted-foreground italic">Update Digital RC (PDF/Image)</Label>
+                    <Input name="rcFile" type="file" accept=".pdf,image/*" className="h-8 text-[10px]" />
                   </div>
                 </div>
               </CardContent>
@@ -311,17 +331,17 @@ export function EditVehicleForm({ vehicle }: { vehicle: any }) {
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-primary">
+          <Card className="border-l-4 border-l-primary bg-primary/5">
             <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                    <IndianRupee className="h-3 w-3" /> Lifetime Revenue
+                    <IndianRupee className="h-3 w-3 text-primary" /> Lifetime Revenue
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-black">₹{((Number(formData.lastKmReading) / 50) * Number(formData.baseRatePerDay)).toLocaleString()}*</div>
-                <p className="text-[10px] text-muted-foreground font-medium uppercase mt-0.5">Projected based on usage</p>
+                <div className="text-2xl font-black text-primary">₹{actualRevenue.toLocaleString()}</div>
+                <p className="text-[10px] text-muted-foreground font-medium uppercase mt-0.5">Total earned from all rentals</p>
                 <div className="mt-4 p-2 bg-muted/50 rounded border text-[10px] text-muted-foreground italic">
-                   *Exact revenue tracking will be linked to Rental Records.
+                   *Revenue includes damages, late fees, and fuel charges where applicable.
                 </div>
             </CardContent>
           </Card>
@@ -333,12 +353,32 @@ export function EditVehicleForm({ vehicle }: { vehicle: any }) {
                 </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-                <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10 text-xs font-bold h-8 border border-white/20">
+                <Button 
+                    variant="ghost" 
+                    className="w-full justify-start text-white hover:bg-white/10 text-xs font-bold h-8 border border-white/20"
+                    onClick={() => openDocument(vehicle.rcUrl)}
+                >
                     View Digital RC (Reg. Cert)
                 </Button>
-                <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10 text-xs font-bold h-8 border border-white/20">
+                <Button 
+                    variant="ghost" 
+                    className="w-full justify-start text-white hover:bg-white/10 text-xs font-bold h-8 border border-white/20"
+                    onClick={() => openDocument(vehicle.insuranceUrl)}
+                >
                     Download Insurance Policy
                 </Button>
+                
+                {/* Additional Dynamic Documents */}
+                {vehicle.documents?.map((doc: { name: string, url: string }, index: number) => (
+                    <Button 
+                        key={index}
+                        variant="ghost" 
+                        className="w-full justify-start text-white hover:bg-white/10 text-xs font-bold h-8 border border-white/20"
+                        onClick={() => openDocument(doc.url)}
+                    >
+                        {doc.name}
+                    </Button>
+                ))}
             </CardContent>
           </Card>
 

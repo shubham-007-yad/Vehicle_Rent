@@ -21,6 +21,7 @@ import {
 import { 
   Search, 
   Bike, 
+  Car,
   AlertTriangle, 
   Settings, 
   ShieldCheck, 
@@ -105,9 +106,10 @@ export function VehicleTable({ initialVehicles }: { initialVehicles: Vehicle[] }
         </div>
       </div>
 
-      <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
-        <Table>
-          <TableHeader className="bg-muted/50">
+      <div className="rounded-xl border bg-card shadow-sm overflow-hidden overflow-x-auto">
+        <div className="min-w-[800px] md:min-w-full">
+          <Table>
+            <TableHeader className="bg-muted/50">
             <TableRow>
               <TableHead>Vehicle Identity</TableHead>
               <TableHead>Type</TableHead>
@@ -139,7 +141,7 @@ export function VehicleTable({ initialVehicles }: { initialVehicles: Vehicle[] }
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="font-normal text-[11px] gap-1">
-                        <Bike size={10} /> {v.type}
+                        {v.type === "Car" ? <Car size={10} /> : <Bike size={10} />} {v.type}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -196,6 +198,7 @@ export function VehicleTable({ initialVehicles }: { initialVehicles: Vehicle[] }
             )}
           </TableBody>
         </Table>
+        </div>
       </div>
     </div>
   );

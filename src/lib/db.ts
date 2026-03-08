@@ -20,18 +20,25 @@ async function connectDB() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 5000, // Wait for 5 seconds before failing
+      serverSelectionTimeoutMS: 15000, // Increased to 15 seconds
+      connectTimeoutMS: 15000,         // Wait 15 seconds for initial connection
+      socketTimeoutMS: 45000,          // Close inactive sockets after 45s
     };
 
     cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
+      console.log("✅ MongoDB Connected Successfully");
       return mongoose;
     });
   }
 
   try {
     cached.conn = await cached.promise;
-  } catch (e) {
+  } catch (e: any) {
     cached.promise = null;
+    console.error("❌ MONGODB CONNECTION ERROR:", e.message);
+    if (e.name === 'MongooseServerSelectionError') {
+      throw new Error("DATABASE CONNECTION FAILED: Your IP might not be whitelisted in MongoDB Atlas. Please check your Network Access settings.");
+    }
     throw e;
   }
 

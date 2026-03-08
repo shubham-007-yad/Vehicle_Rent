@@ -9,7 +9,8 @@ export async function POST(req: Request) {
     const session = await auth();
     
     // Security: Only Owners can create new users
-    if (session?.user?.role !== "Owner") {
+    // @ts-ignore - Bypass build error for custom property
+    if ((session?.user as any)?.role !== "Owner") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 

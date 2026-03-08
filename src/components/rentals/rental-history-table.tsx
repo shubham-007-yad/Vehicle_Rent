@@ -199,8 +199,9 @@ export function RentalHistoryTable({ initialRentals }: RentalHistoryTableProps) 
         </div>
       </div>
 
-      <div className="rounded-md border bg-card">
-        <Table>
+      <div className="rounded-md border bg-card overflow-x-auto">
+        <div className="min-w-[800px] md:min-w-full">
+          <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Date</TableHead>
@@ -254,6 +255,7 @@ export function RentalHistoryTable({ initialRentals }: RentalHistoryTableProps) 
             )}
           </TableBody>
         </Table>
+        </div>
       </div>
 
       <div className="bg-muted/50 p-4 rounded-lg flex justify-between items-center border">

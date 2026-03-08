@@ -18,6 +18,8 @@ const sampleVehicles = [
     lastServiceKm: 0,
     insuranceExpiry: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000),
     pucExpiry: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    rcUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+    insuranceUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
   },
   {
     make: "Royal Enfield",
@@ -31,6 +33,8 @@ const sampleVehicles = [
     lastServiceKm: 1000,
     insuranceExpiry: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
     pucExpiry: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+    rcUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+    insuranceUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
   },
   {
     make: "Honda",
@@ -44,6 +48,8 @@ const sampleVehicles = [
     lastServiceKm: 5000,
     insuranceExpiry: new Date(Date.now() + 200 * 24 * 60 * 60 * 1000),
     pucExpiry: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+    rcUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+    insuranceUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
   },
   {
     make: "Honda",
@@ -57,6 +63,8 @@ const sampleVehicles = [
     lastServiceKm: 14000,
     insuranceExpiry: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000),
     pucExpiry: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
+    rcUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+    insuranceUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
   }
 ];
 

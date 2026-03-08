@@ -4,7 +4,7 @@ export interface IVehicle extends Document {
   make: string;
   model: string;
   plateNumber: string;
-  type: "Scooter" | "Bike";
+  type: "Scooter" | "Bike" | "Car";
   baseRatePerDay: number;
   status: "Available" | "On-Trip" | "Maintenance";
   lastKmReading: number;
@@ -12,6 +12,9 @@ export interface IVehicle extends Document {
   lastServiceKm: number;
   insuranceExpiry: Date;
   pucExpiry: Date;
+  rcUrl?: string;
+  insuranceUrl?: string;
+  documents?: { name: string; url: string }[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -21,7 +24,7 @@ const VehicleSchema: Schema = new Schema(
     make: { type: String, required: true },
     model: { type: String, required: true },
     plateNumber: { type: String, required: true, unique: true },
-    type: { type: String, enum: ["Scooter", "Bike"], required: true },
+    type: { type: String, enum: ["Scooter", "Bike", "Car"], required: true },
     baseRatePerDay: { type: Number, required: true },
     status: {
       type: String,
@@ -33,6 +36,14 @@ const VehicleSchema: Schema = new Schema(
     lastServiceKm: { type: Number, required: true, default: 0 },
     insuranceExpiry: { type: Date },
     pucExpiry: { type: Date },
+    rcUrl: { type: String },
+    insuranceUrl: { type: String },
+    documents: [
+      {
+        name: { type: String, required: true },
+        url: { type: String, required: true },
+      },
+    ],
   },
   { timestamps: true }
 );

@@ -13,7 +13,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { Bike, ArrowLeft, Save, PlusCircle, Settings } from "lucide-react";
+import { Bike, ArrowLeft, Save, PlusCircle, Settings, X, FileText } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
@@ -21,6 +21,15 @@ import { toast } from "sonner";
 
 export default function AddVehiclePage() {
   const [isPending, setIsPending] = useState(false);
+  const [extraDocs, setExtraDocs] = useState<{ id: number; name: string }[]>([]);
+
+  const addDocRow = () => {
+    setExtraDocs([...extraDocs, { id: Date.now(), name: "" }]);
+  };
+
+  const removeDocRow = (id: number) => {
+    setExtraDocs(extraDocs.filter(d => d.id !== id));
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -84,6 +93,7 @@ export default function AddVehiclePage() {
                   <SelectContent>
                     <SelectItem value="Bike">Bike (Motorcycle)</SelectItem>
                     <SelectItem value="Scooter">Scooter (Gearless)</SelectItem>
+                    <SelectItem value="Car">Car (4-Wheeler)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -119,17 +129,71 @@ export default function AddVehiclePage() {
             <CardHeader className="pb-3 border-b border-muted">
               <CardTitle className="text-sm font-bold flex items-center gap-2">
                 <PlusCircle className="h-4 w-4 text-green-500" />
-                Compliance Documents (Expiries)
+                Compliance Documents (Expiries & Uploads)
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="insuranceExpiry">Insurance Expiry Date</Label>
-                <Input name="insuranceExpiry" id="insuranceExpiry" type="date" required />
+            <CardContent className="pt-6 space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="insuranceExpiry">Insurance Expiry Date</Label>
+                    <Input name="insuranceExpiry" id="insuranceExpiry" type="date" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="insuranceFile">Upload Insurance Policy (PDF/Image)</Label>
+                    <Input name="insuranceFile" id="insuranceFile" type="file" accept=".pdf,image/*" />
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="pucExpiry">PUC (Pollution) Expiry Date</Label>
+                    <Input name="pucExpiry" id="pucExpiry" type="date" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="rcFile">Upload Digital RC (PDF/Image)</Label>
+                    <Input name="rcFile" id="rcFile" type="file" accept=".pdf,image/*" />
+                  </div>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="pucExpiry">PUC (Pollution) Expiry Date</Label>
-                <Input name="pucExpiry" id="pucExpiry" type="date" required />
+
+              {/* Dynamic Extra Documents */}
+              <div className="border-t pt-6">
+                <div className="flex items-center justify-between mb-4">
+                  <Label className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                    <FileText className="h-4 w-4" /> Additional Documents (Permits, PUC Certificate, etc.)
+                  </Label>
+                  <Button type="button" variant="outline" size="sm" onClick={addDocRow} className="h-7 text-[10px] font-bold uppercase">
+                    + Add More
+                  </Button>
+                </div>
+                
+                <div className="space-y-3">
+                  {extraDocs.map((doc) => (
+                    <div key={doc.id} className="flex flex-col md:flex-row gap-4 p-4 rounded-lg bg-muted/30 border border-dashed animate-in fade-in zoom-in duration-200">
+                      <div className="flex-1 space-y-2">
+                        <Label className="text-[10px] font-bold uppercase">Document Label</Label>
+                        <Input name="extraDocNames" placeholder="e.g. PUC Certificate" required className="h-9 text-xs" />
+                      </div>
+                      <div className="flex-1 space-y-2">
+                        <Label className="text-[10px] font-bold uppercase">Select File</Label>
+                        <Input name="extraDocFiles" type="file" required className="h-9 text-xs" />
+                      </div>
+                      <Button 
+                        type="button" 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => removeDocRow(doc.id)}
+                        className="self-end h-9 w-9 text-red-500 hover:text-red-600 hover:bg-red-50"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  {extraDocs.length === 0 && (
+                    <p className="text-xs text-center text-muted-foreground italic py-4">No extra documents added yet.</p>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>

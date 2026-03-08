@@ -30,6 +30,30 @@ export async function uploadImage(base64Image: string) {
   }
 }
 
+export async function uploadFile(file: File, folder: string) {
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    
+    return new Promise<{ url: string; error?: string }>((resolve) => {
+      cloudinary.uploader.upload_stream(
+        { folder: folder, resource_type: "auto" },
+        (error, result) => {
+          if (error) {
+            console.error("Cloudinary Upload Error:", error);
+            resolve({ error: "Failed to upload file to cloud.", url: "" });
+          } else {
+            resolve({ url: result?.secure_url || "" });
+          }
+        }
+      ).end(buffer);
+    });
+  } catch (error) {
+    console.error("File processing error:", error);
+    return { error: "Failed to process file.", url: "" };
+  }
+}
+
 export async function createRental(data: any) {
   await connectDB();
   
@@ -77,6 +101,40 @@ export async function createRental(data: any) {
 export async function addVehicle(formData: FormData) {
   await connectDB();
   
+  const rcFile = formData.get("rcFile") as File;
+  const insuranceFile = formData.get("insuranceFile") as File;
+
+  let rcUrl = "";
+  let insuranceUrl = "";
+
+  if (rcFile && rcFile.size > 0) {
+    const uploadResult = await uploadFile(rcFile, "vehicle_documents");
+    if (uploadResult.error) return { error: "Failed to upload RC document." };
+    rcUrl = uploadResult.url;
+  }
+
+  if (insuranceFile && insuranceFile.size > 0) {
+    const uploadResult = await uploadFile(insuranceFile, "vehicle_documents");
+    if (uploadResult.error) return { error: "Failed to upload Insurance document." };
+    insuranceUrl = uploadResult.url;
+  }
+
+  // Handle Extra Documents
+  const extraDocNames = formData.getAll("extraDocNames") as string[];
+  const extraDocFiles = formData.getAll("extraDocFiles") as File[];
+  const documents: { name: string; url: string }[] = [];
+
+  for (let i = 0; i < extraDocNames.length; i++) {
+    const file = extraDocFiles[i];
+    const name = extraDocNames[i];
+    if (file && file.size > 0) {
+      const uploadResult = await uploadFile(file, "vehicle_documents");
+      if (!uploadResult.error) {
+        documents.push({ name, url: uploadResult.url });
+      }
+    }
+  }
+
   const rawData = {
     make: formData.get("make"),
     model: formData.get("model"),
@@ -87,6 +145,9 @@ export async function addVehicle(formData: FormData) {
     lastServiceKm: Number(formData.get("lastServiceKm") || formData.get("lastKmReading")),
     insuranceExpiry: new Date(formData.get("insuranceExpiry") as string),
     pucExpiry: new Date(formData.get("pucExpiry") as string),
+    rcUrl,
+    insuranceUrl,
+    documents,
     status: "Available",
     fuelLevel: 100
   };
@@ -106,7 +167,7 @@ export async function addVehicle(formData: FormData) {
 export async function updateVehicle(id: string, formData: FormData) {
   await connectDB();
   
-  const updates = {
+  const updates: any = {
     make: formData.get("make"),
     model: formData.get("model"),
     plateNumber: formData.get("plateNumber"),
@@ -117,6 +178,19 @@ export async function updateVehicle(id: string, formData: FormData) {
     insuranceExpiry: new Date(formData.get("insuranceExpiry") as string),
     pucExpiry: new Date(formData.get("pucExpiry") as string),
   };
+
+  const rcFile = formData.get("rcFile") as File;
+  const insuranceFile = formData.get("insuranceFile") as File;
+
+  if (rcFile && rcFile.size > 0) {
+    const uploadResult = await uploadFile(rcFile, "vehicle_documents");
+    if (!uploadResult.error) updates.rcUrl = uploadResult.url;
+  }
+
+  if (insuranceFile && insuranceFile.size > 0) {
+    const uploadResult = await uploadFile(insuranceFile, "vehicle_documents");
+    if (!uploadResult.error) updates.insuranceUrl = uploadResult.url;
+  }
 
   try {
     await Vehicle.findByIdAndUpdate(id, updates);
