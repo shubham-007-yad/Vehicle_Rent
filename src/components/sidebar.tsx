@@ -8,7 +8,6 @@ import {
   Bike, 
   Warehouse, 
   ClipboardList, 
-  Settings, 
   LogOut,
   User,
   Moon,
@@ -19,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { handleSignOut } from "@/lib/actions";
+import { useSession } from "next-auth/react";
 
 const menuItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -32,6 +32,8 @@ const menuItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const { setTheme, theme } = useTheme();
+  const { data: session } = useSession();
+  const user = session?.user;
 
   return (
     <div className="w-64 border-r bg-card/50 backdrop-blur-md flex flex-col h-full shrink-0">
@@ -64,23 +66,16 @@ export function Sidebar() {
       </nav>
 
       <div className="p-4 border-t mt-auto space-y-1">
-        <Link
-          href="/dashboard/settings"
-          className={cn(
-            "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
-            pathname === "/dashboard/settings"
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-          )}
-        >
-          <Settings size={20} />
-          <span className="font-medium">Settings</span>
-        </Link>
-        
         <div className="flex items-center justify-between px-3 py-2">
-           <div className="flex items-center gap-3 text-muted-foreground">
-             <User size={20} />
-             <span className="font-medium">Owner</span>
+           <div className="flex items-center gap-3 text-muted-foreground min-w-0">
+             <div className="size-6 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border shrink-0">
+                {user?.image ? (
+                  <img src={user.image} alt="DP" className="w-full h-full object-cover" />
+                ) : (
+                  <User size={14} className="text-primary" />
+                )}
+             </div>
+             <span className="font-medium truncate text-sm">{user?.name || "Account"}</span>
            </div>
            <Button 
             variant="ghost" 

@@ -21,24 +21,35 @@ import bcrypt from "bcryptjs";
 import { auth } from "@/auth";
 
 export async function getUsers() {
-  await connectDB();
-  const session = await auth();
-  if ((session?.user as any)?.role !== "Owner") return { error: "Unauthorized" };
-
   try {
-    const users = await User.find({}, { password: 0 }).sort({ createdAt: -1 });
+    await connectDB();
+    const session = await auth();
+    if (!session?.user) return { error: "Unauthorized" };
+
+    const requesterEmail = session.user.email;
+    const requester = await User.findOne({ email: requesterEmail });
+
+    if (requester?.role !== "Owner") return { error: "Unauthorized" };
+
+    const users = await User.find({}, { password: 0 }).sort({ createdAt: -1 }).lean();
     return { success: true, users: JSON.parse(JSON.stringify(users)) };
-  } catch (error) {
+  } catch (error: any) {
+    console.error("getUsers error:", error);
     return { error: "Could not fetch users." };
   }
 }
 
 export async function createStaffUser(data: any) {
-  await connectDB();
-  const session = await auth();
-  if ((session?.user as any)?.role !== "Owner") return { error: "Unauthorized" };
-
   try {
+    await connectDB();
+    const session = await auth();
+    if (!session?.user) return { error: "Unauthorized" };
+
+    const requesterEmail = session.user.email;
+    const requester = await User.findOne({ email: requesterEmail });
+
+    if (requester?.role !== "Owner") return { error: "Unauthorized" };
+
     const { name, email, password, role } = data;
     const userExists = await User.findOne({ email });
     if (userExists) return { error: "User already exists." };
@@ -52,26 +63,111 @@ export async function createStaffUser(data: any) {
     });
 
     revalidatePath("/dashboard/settings");
-    return { success: true, user: JSON.parse(JSON.stringify(newUser)) };
-  } catch (error) {
-    return { error: "Could not create user." };
+    return { success: true };
+  } catch (error: any) {
+    console.error("createStaffUser error:", error);
+    return { error: error.message || "Could not create user." };
   }
 }
 
 export async function deleteUser(id: string) {
-  await connectDB();
-  const session = await auth();
-  if ((session?.user as any)?.role !== "Owner") return { error: "Unauthorized" };
-
   try {
-    const user = await User.findById(id);
-    if (user?.role === "Owner") return { error: "Cannot delete the Owner account." };
+    await connectDB();
+    const session = await auth();
+    if (!session?.user) return { error: "Unauthorized" };
+
+    const requesterEmail = session.user.email;
+    const requester = await User.findOne({ email: requesterEmail });
+
+    if (requester?.role !== "Owner") return { error: "Unauthorized" };
+
+    const userToDelete = await User.findById(id);
+    if (!userToDelete) return { error: "User not found." };
+    if (userToDelete.role === "Owner") return { error: "Cannot delete the Owner account." };
 
     await User.findByIdAndDelete(id);
     revalidatePath("/dashboard/settings");
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
+    console.error("deleteUser error:", error);
     return { error: "Could not delete user." };
+  }
+}
+
+export async function updateUserProfile(data: { 
+  name: string; 
+  email: string;
+  phone?: string;
+  bio?: string;
+  profilePictureUrl?: string;
+  profileBannerUrl?: string;
+}) {
+  await connectDB();
+  const session = await auth();
+  if (!session?.user) return { error: "Unauthorized" };
+
+  try {
+    const { name, email, phone, bio, profilePictureUrl, profileBannerUrl } = data;
+    
+    // 1. Identify User (ID or Email)
+    const userId = (session.user as any).id;
+    const userEmail = session.user.email;
+
+    let user = null;
+    if (userId) user = await User.findById(userId);
+    if (!user && userEmail) user = await User.findOne({ email: userEmail });
+
+    if (!user) return { error: "User account not found." };
+
+    // 2. Check if new email is taken (if changed)
+    if (email !== user.email) {
+      const existingUser = await User.findOne({ email });
+      if (existingUser) return { error: "This email is already linked to another account." };
+    }
+
+    // 3. Perform Update
+    user.name = name;
+    user.email = email;
+    user.phone = phone;
+    user.bio = bio;
+    user.profilePictureUrl = profilePictureUrl;
+    user.profileBannerUrl = profileBannerUrl;
+
+    await user.save();
+
+    revalidatePath("/dashboard/profile");
+    revalidatePath("/dashboard"); 
+    return { success: true };
+  } catch (error: any) {
+    console.error("Profile update error:", error);
+    return { error: `Failed to update profile: ${error.message}` };
+  }
+}
+
+export async function changePassword(data: any) {
+  try {
+    await connectDB();
+    const session = await auth();
+    if (!session?.user) return { error: "Unauthorized" };
+
+    const { currentPassword, newPassword } = data;
+    const user = await User.findOne({ email: session.user.email });
+
+    if (!user) return { error: "User not found." };
+
+    // Verify current password
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) return { error: "Current password is incorrect." };
+
+    // Hash and save new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Change password error:", error);
+    return { error: "Failed to update password." };
   }
 }
 
@@ -125,18 +221,28 @@ export async function handleSignOut() {
 
 export async function uploadImage(base64Image: string) {
   try {
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY) {
+      console.error("Cloudinary config missing!");
+      return { error: "Cloudinary is not configured correctly." };
+    }
+
     const uploadResponse = await cloudinary.uploader.upload(base64Image, {
       folder: "varanasi_rentals_kyc",
     });
     return { url: uploadResponse.secure_url };
-  } catch (error) {
-    console.error("Cloudinary Upload Error:", error);
-    return { error: "Failed to upload image to cloud." };
+  } catch (error: any) {
+    console.error("Cloudinary Upload Error Details:", error);
+    return { error: `Upload failed: ${error.message || "Unknown error"}` };
   }
 }
 
 export async function uploadFile(file: File, folder: string) {
   try {
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY) {
+      console.error("Cloudinary config missing!");
+      return { error: "Cloudinary is not configured correctly.", url: "" };
+    }
+
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     
@@ -145,17 +251,17 @@ export async function uploadFile(file: File, folder: string) {
         { folder: folder, resource_type: "auto" },
         (error, result) => {
           if (error) {
-            console.error("Cloudinary Upload Error:", error);
-            resolve({ error: "Failed to upload file to cloud.", url: "" });
+            console.error("Cloudinary Upload Stream Error:", error);
+            resolve({ error: `Upload failed: ${error.message || "Unknown error"}`, url: "" });
           } else {
             resolve({ url: result?.secure_url || "" });
           }
         }
       ).end(buffer);
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("File processing error:", error);
-    return { error: "Failed to process file.", url: "" };
+    return { error: `Failed to process file: ${error.message || "Unknown error"}`, url: "" };
   }
 }
 

@@ -157,43 +157,45 @@ export function ShopSettingsForm({ initialSettings, users }: { initialSettings: 
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 pb-20 md:pb-0 px-1 md:px-0">
       <Tabs defaultValue="profile" className="w-full">
-        <TabsList className="grid grid-cols-4 w-full max-w-xl h-12 p-1 bg-muted/50 rounded-xl mb-6">
-          <TabsTrigger value="profile" className="rounded-lg gap-2">
-            <Store size={16} /> Profile
-          </TabsTrigger>
-          <TabsTrigger value="rules" className="rounded-lg gap-2">
-            <Calculator size={16} /> Rules
-          </TabsTrigger>
-          <TabsTrigger value="damages" className="rounded-lg gap-2">
-            <Wrench size={16} /> Damages
-          </TabsTrigger>
-          <TabsTrigger value="staff" className="rounded-lg gap-2">
-            <UsersIcon size={16} /> Staff
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
+          <TabsList className="flex w-fit md:grid md:grid-cols-4 md:w-full max-w-xl h-12 p-1 bg-muted/50 rounded-xl mb-2 md:mb-6">
+            <TabsTrigger value="profile" className="rounded-lg gap-2 whitespace-nowrap px-4 md:px-2 data-[selected]:bg-background data-[selected]:text-foreground data-[selected]:shadow">
+              <Store size={14} /> Profile
+            </TabsTrigger>
+            <TabsTrigger value="rules" className="rounded-lg gap-2 whitespace-nowrap px-4 md:px-2 data-[selected]:bg-background data-[selected]:text-foreground data-[selected]:shadow">
+              <Calculator size={14} /> Rules
+            </TabsTrigger>
+            <TabsTrigger value="damages" className="rounded-lg gap-2 whitespace-nowrap px-4 md:px-2 data-[selected]:bg-background data-[selected]:text-foreground data-[selected]:shadow">
+              <Wrench size={14} /> Damages
+            </TabsTrigger>
+            <TabsTrigger value="staff" className="rounded-lg gap-2 whitespace-nowrap px-4 md:px-2 data-[selected]:bg-background data-[selected]:text-foreground data-[selected]:shadow">
+              <UsersIcon size={14} /> Staff
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <TabsContent value="profile" className="space-y-6">
-              <Card className="border-primary/10">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+            <TabsContent value="profile" className="space-y-4 md:space-y-6">
+              <Card className="border-primary/10 shadow-sm">
+                <CardHeader className="p-4 md:p-6">
+                  <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
                     <Store className="h-5 w-5 text-primary" /> Shop Identity
                   </CardTitle>
-                  <CardDescription>This information will appear on bills and invoices.</CardDescription>
+                  <CardDescription className="text-xs md:text-sm">This information will appear on bills and invoices.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <CardContent className="space-y-4 p-4 md:p-6 pt-0 md:pt-0">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     <FormField
                       control={form.control}
                       name="shopName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Shop Name</FormLabel>
+                          <FormLabel className="text-xs md:text-sm">Shop Name</FormLabel>
                           <FormControl>
-                            <Input placeholder="Assi Ghat Bike Point" {...field} />
+                            <Input placeholder="Assi Ghat Bike Point" {...field} className="h-10" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -204,11 +206,11 @@ export function ShopSettingsForm({ initialSettings, users }: { initialSettings: 
                       name="ownerPhone"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Owner WhatsApp Number</FormLabel>
+                          <FormLabel className="text-xs md:text-sm">Owner WhatsApp Number</FormLabel>
                           <FormControl>
                             <div className="relative">
                               <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                              <Input className="pl-9 font-mono" placeholder="9876543210" {...field} />
+                              <Input className="pl-9 font-mono h-10" placeholder="9876543210" {...field} />
                             </div>
                           </FormControl>
                           <FormMessage />
@@ -221,7 +223,7 @@ export function ShopSettingsForm({ initialSettings, users }: { initialSettings: 
                     name="address"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Business Address</FormLabel>
+                        <FormLabel className="text-xs md:text-sm">Business Address</FormLabel>
                         <FormControl>
                           <div className="relative">
                             <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -240,10 +242,10 @@ export function ShopSettingsForm({ initialSettings, users }: { initialSettings: 
                     control={form.control}
                     name="whatsappNotification"
                     render={({ field }) => (
-                      <FormItem className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
+                      <FormItem className="flex items-center justify-between p-3 md:p-4 rounded-lg border bg-muted/30">
                         <div className="space-y-0.5">
-                          <FormLabel>Automated WhatsApp Billing</FormLabel>
-                          <FormDescription>Send bills automatically when trips start/end.</FormDescription>
+                          <FormLabel className="text-xs md:text-sm">WhatsApp Billing</FormLabel>
+                          <FormDescription className="text-[10px] md:text-xs leading-tight">Send bills automatically via WhatsApp.</FormDescription>
                         </div>
                         <FormControl>
                           <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -255,23 +257,23 @@ export function ShopSettingsForm({ initialSettings, users }: { initialSettings: 
               </Card>
             </TabsContent>
 
-            <TabsContent value="rules" className="space-y-6">
-              <Card className="border-primary/10">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+            <TabsContent value="rules" className="space-y-4 md:space-y-6">
+              <Card className="border-primary/10 shadow-sm">
+                <CardHeader className="p-4 md:p-6">
+                  <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
                     <Calculator className="h-5 w-5 text-primary" /> Rental Rules
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-4 p-4 md:p-6 pt-0 md:pt-0">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <FormField
                       control={form.control}
                       name="defaultDepositScooter"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Scooter Deposit</FormLabel>
+                          <FormLabel className="text-xs md:text-sm">Scooter Deposit</FormLabel>
                           <FormControl>
-                            <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />
+                            <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} className="h-10" />
                           </FormControl>
                         </FormItem>
                       )}
@@ -281,9 +283,9 @@ export function ShopSettingsForm({ initialSettings, users }: { initialSettings: 
                       name="defaultDepositBike"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Bike Deposit</FormLabel>
+                          <FormLabel className="text-xs md:text-sm">Bike Deposit</FormLabel>
                           <FormControl>
-                            <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />
+                            <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} className="h-10" />
                           </FormControl>
                         </FormItem>
                       )}
@@ -293,9 +295,9 @@ export function ShopSettingsForm({ initialSettings, users }: { initialSettings: 
                       name="lateFeePerHour"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Late Fee (per hr)</FormLabel>
+                          <FormLabel className="text-xs md:text-sm">Late Fee (per hr)</FormLabel>
                           <FormControl>
-                            <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />
+                            <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} className="h-10" />
                           </FormControl>
                         </FormItem>
                       )}
@@ -305,25 +307,27 @@ export function ShopSettingsForm({ initialSettings, users }: { initialSettings: 
               </Card>
             </TabsContent>
 
-            <TabsContent value="damages" className="space-y-6">
-              <Card className="border-primary/10">
-                <CardHeader className="flex justify-between flex-row items-center">
-                  <CardTitle>Damage Catalog</CardTitle>
-                  <Button type="button" variant="outline" size="sm" onClick={() => append({ name: "", price: 0 })}>
-                    <Plus size={14} className="mr-2" /> Add Item
+            <TabsContent value="damages" className="space-y-4 md:space-y-6">
+              <Card className="border-primary/10 shadow-sm">
+                <CardHeader className="flex justify-between flex-row items-center p-4 md:p-6">
+                  <CardTitle className="text-lg md:text-xl">Damage Catalog</CardTitle>
+                  <Button type="button" variant="outline" size="sm" onClick={() => append({ name: "", price: 0 })} className="h-8 text-xs">
+                    <Plus size={14} className="mr-1" /> Add
                   </Button>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-4 p-4 md:p-6 pt-0 md:pt-0">
                   {fields.map((field, index) => (
-                    <div key={field.id} className="flex gap-4 items-end">
-                      <div className="flex-1">
-                        <Input {...form.register(`damageCatalog.${index}.name`)} placeholder="Item Name" />
+                    <div key={field.id} className="flex gap-2 md:gap-4 items-end bg-muted/20 p-2 rounded-lg border border-dashed md:bg-transparent md:p-0 md:border-0 md:rounded-none">
+                      <div className="flex-1 space-y-1">
+                        <Label className="text-[10px] uppercase font-bold text-muted-foreground md:hidden">Name</Label>
+                        <Input {...form.register(`damageCatalog.${index}.name`)} placeholder="Item Name" className="h-9 text-xs md:text-sm md:h-10" />
                       </div>
-                      <div className="w-32">
-                        <Input type="number" {...form.register(`damageCatalog.${index}.price`, { valueAsNumber: true })} placeholder="Price" />
+                      <div className="w-20 md:w-32 space-y-1">
+                        <Label className="text-[10px] uppercase font-bold text-muted-foreground md:hidden">Price</Label>
+                        <Input type="number" {...form.register(`damageCatalog.${index}.price`, { valueAsNumber: true })} placeholder="Price" className="h-9 text-xs md:text-sm md:h-10" />
                       </div>
-                      <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)}>
-                        <Trash2 size={18} className="text-red-500" />
+                      <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="h-9 w-9 text-red-500">
+                        <Trash2 size={16} />
                       </Button>
                     </div>
                   ))}
@@ -331,38 +335,38 @@ export function ShopSettingsForm({ initialSettings, users }: { initialSettings: 
               </Card>
             </TabsContent>
 
-            <div className="flex justify-end pt-4">
-              <Button type="submit" disabled={isPending}>
+            <div className="flex justify-end pt-2 sticky bottom-20 md:relative md:bottom-0">
+              <Button type="submit" disabled={isPending} className="w-full md:w-auto h-12 md:h-10 shadow-lg md:shadow-none">
                 {isPending ? <Loader2 className="animate-spin mr-2" /> : <Save className="mr-2" />} 
-                Save Configuration
+                Save Changes
               </Button>
             </div>
           </form>
         </Form>
 
-        <TabsContent value="staff" className="space-y-6">
-          <Card className="border-primary/10">
-            <CardHeader className="flex justify-between flex-row items-center">
-              <div>
-                <CardTitle>Staff Management</CardTitle>
-                <CardDescription>Control dashboard access.</CardDescription>
+        <TabsContent value="staff" className="space-y-4 md:space-y-6">
+          <Card className="border-primary/10 shadow-sm">
+            <CardHeader className="flex justify-between flex-row items-center p-4 md:p-6">
+              <div className="space-y-1">
+                <CardTitle className="text-lg md:text-xl">Staff Management</CardTitle>
+                <CardDescription className="text-xs">Control dashboard access.</CardDescription>
               </div>
               <Dialog open={isAddStaffOpen} onOpenChange={setIsAddStaffOpen}>
-                <DialogTrigger render={<Button size="sm"><UserPlus size={14} className="mr-2" /> Add Staff</Button>} />
-                <DialogContent>
-                  <DialogHeader><DialogTitle>Add Staff</DialogTitle></DialogHeader>
+                <DialogTrigger render={<Button size="sm" className="h-8 text-xs px-2"><UserPlus size={14} className="mr-1" /> Add Staff</Button>} />
+                <DialogContent className="max-w-[90vw] md:max-w-md rounded-xl">
+                  <DialogHeader><DialogTitle className="text-left">Add Staff</DialogTitle></DialogHeader>
                   <Form {...staffForm}>
-                    <form onSubmit={staffForm.handleSubmit(onStaffSubmit)} className="space-y-4">
+                    <form onSubmit={staffForm.handleSubmit(onStaffSubmit)} className="space-y-4 pt-4">
                       <FormField control={staffForm.control} name="name" render={({ field }) => (
-                        <FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
+                        <FormItem><FormLabel className="text-sm">Name</FormLabel><FormControl><Input placeholder="John Doe" {...field} className="h-10" /></FormControl></FormItem>
                       )} />
                       <FormField control={staffForm.control} name="email" render={({ field }) => (
-                        <FormItem><FormLabel>Email</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
+                        <FormItem><FormLabel className="text-sm">Email</FormLabel><FormControl><Input placeholder="john@example.com" {...field} className="h-10" /></FormControl></FormItem>
                       )} />
                       <FormField control={staffForm.control} name="password" render={({ field }) => (
-                        <FormItem><FormLabel>Password</FormLabel><FormControl><Input type="password" {...field} /></FormControl></FormItem>
+                        <FormItem><FormLabel className="text-sm">Password</FormLabel><FormControl><Input type="password" placeholder="••••••••" {...field} className="h-10" /></FormControl></FormItem>
                       )} />
-                      <Button type="submit" className="w-full" disabled={isStaffPending}>
+                      <Button type="submit" className="w-full h-11" disabled={isStaffPending}>
                         {isStaffPending ? "Creating..." : "Create Account"}
                       </Button>
                     </form>
@@ -370,20 +374,23 @@ export function ShopSettingsForm({ initialSettings, users }: { initialSettings: 
                 </DialogContent>
               </Dialog>
             </CardHeader>
-            <CardContent>
-              <div className="grid gap-4">
+            <CardContent className="space-y-3 p-4 md:p-6 pt-0 md:pt-0">
+              <div className="grid gap-3">
                 {users.map((user) => (
-                  <div key={user._id} className="flex items-center justify-between p-4 border rounded-xl">
+                  <div key={user._id} className="flex items-center justify-between p-3 border rounded-xl bg-muted/20">
                     <div className="flex items-center gap-3">
-                      <div className="bg-muted p-2 rounded-full"><UserCheck size={18} /></div>
-                      <div>
-                        <p className="font-bold">{user.name}</p>
-                        <p className="text-xs text-muted-foreground">{user.email} • {user.role}</p>
+                      <div className="bg-background p-2 rounded-full border shadow-sm"><UserCheck size={16} className="text-primary" /></div>
+                      <div className="min-w-0">
+                        <p className="font-bold text-sm truncate">{user.name}</p>
+                        <p className="text-[10px] text-muted-foreground truncate max-w-[150px]">{user.email}</p>
+                        <span className="inline-block mt-1 text-[8px] font-black uppercase tracking-tighter bg-primary/10 text-primary px-1.5 py-0.5 rounded leading-none">
+                          {user.role}
+                        </span>
                       </div>
                     </div>
                     {user.role !== "Owner" && (
-                      <Button variant="ghost" size="icon" onClick={() => handleDeleteUser(user._id)}>
-                        <Trash2 size={18} className="text-red-500" />
+                      <Button variant="ghost" size="icon" onClick={() => handleDeleteUser(user._id)} className="h-8 w-8 text-red-500">
+                        <Trash2 size={16} />
                       </Button>
                     )}
                   </div>
