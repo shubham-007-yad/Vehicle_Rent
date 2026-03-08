@@ -4,6 +4,7 @@ import Vehicle from "@/models/Vehicle";
 import { ActiveTripsList } from "@/components/rentals/active-trips-list";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bike, Clock, AlertCircle } from "lucide-react";
+import { getShopSettings } from "@/lib/actions";
 
 async function getActiveTrips() {
   await connectDB();
@@ -55,6 +56,7 @@ async function getActiveTrips() {
 
 export default async function ActiveTripsPage() {
   const { rentals, overdueCount, dueTodayCount } = await getActiveTrips();
+  const { settings } = await getShopSettings();
 
   return (
     <div className="space-y-8">
@@ -102,7 +104,7 @@ export default async function ActiveTripsPage() {
           </h2>
         </div>
 
-        <ActiveTripsList initialRentals={rentals} />
+        <ActiveTripsList initialRentals={rentals} settings={settings} />
       </div>
     </div>
   );

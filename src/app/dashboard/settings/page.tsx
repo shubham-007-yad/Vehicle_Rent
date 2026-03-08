@@ -1,15 +1,50 @@
-export default function SettingsPage() {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-4">
-      <div className="bg-primary/10 p-4 rounded-full">
-        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+import { getShopSettings, getUsers } from "@/lib/actions";
+import { ShopSettingsForm } from "@/components/settings/shop-settings-form";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+import { ShieldAlert } from "lucide-react";
+
+export default async function SettingsPage() {
+  const session = await auth();
+  
+  // Security: Only Owners can access settings
+  if ((session?.user as any)?.role !== "Owner") {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-4">
+        <div className="bg-destructive/10 p-4 rounded-full">
+          <ShieldAlert className="text-destructive h-12 w-12" />
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold">Access Denied</h2>
+          <p className="text-muted-foreground mt-2">Only the Shop Owner can modify configuration.</p>
+        </div>
       </div>
+    );
+  }
+
+  const [{ settings, error: settingsError }, { users, error: usersError }] = await Promise.all([
+    getShopSettings(),
+    getUsers(),
+  ]);
+
+  if (settingsError || usersError) {
+    return (
+      <div className="p-8 text-center border rounded-xl bg-destructive/5">
+        <p className="text-destructive font-bold">{settingsError || usersError}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-8">
       <div>
-        <h2 className="text-2xl font-bold italic">Shop Configuration</h2>
-        <p className="text-muted-foreground mt-2 max-w-md mx-auto">
-          Manage shop settings, staff permissions, and pricing rules.
+        <h1 className="text-3xl font-bold italic tracking-tight">Shop Configuration</h1>
+        <p className="text-muted-foreground mt-1">
+          Customize your shop identity, rental logic, and automation rules.
         </p>
       </div>
+
+      <ShopSettingsForm initialSettings={settings} users={users} />
     </div>
   );
 }

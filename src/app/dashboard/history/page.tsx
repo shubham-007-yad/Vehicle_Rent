@@ -7,8 +7,11 @@ import {
   Users
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { auth } from "@/auth";
 
 export default async function HistoryPage() {
+  const session = await auth();
+  const isOwner = (session?.user as any)?.role === "Owner";
   const { rentals, error } = await getRentalHistory();
 
   if (error) {
@@ -50,16 +53,20 @@ export default async function HistoryPage() {
             <p className="text-xs text-muted-foreground font-semibold">Completed Rentals</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium italic">All-Time Revenue</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary italic">₹{totalRevenue.toLocaleString("en-IN")}</div>
-            <p className="text-xs text-muted-foreground font-semibold">Net Collections</p>
-          </CardContent>
-        </Card>
+        
+        {isOwner && (
+          <Card className="border-l-4 border-l-primary bg-primary/5">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium italic">All-Time Revenue</CardTitle>
+              <TrendingUp className="h-4 w-4 text-primary" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-primary italic">₹{totalRevenue.toLocaleString("en-IN")}</div>
+              <p className="text-xs text-muted-foreground font-semibold">Net Collections</p>
+            </CardContent>
+          </Card>
+        )}
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium italic">Repeat Customers</CardTitle>

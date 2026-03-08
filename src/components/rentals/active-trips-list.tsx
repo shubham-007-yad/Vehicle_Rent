@@ -51,9 +51,10 @@ import { cn } from "@/lib/utils";
 
 interface ActiveTripsListProps {
   initialRentals: any[];
+  settings: any;
 }
 
-export function ActiveTripsList({ initialRentals }: ActiveTripsListProps) {
+export function ActiveTripsList({ initialRentals, settings }: ActiveTripsListProps) {
   const router = useRouter();
   const [rentals, setRentals] = useState(initialRentals);
   const [selectedRental, setSelectedRental] = useState<any>(null);
@@ -126,8 +127,9 @@ export function ActiveTripsList({ initialRentals }: ActiveTripsListProps) {
     
     const diffMs = now.getTime() - expectedEnd.getTime();
     const hoursLate = Math.ceil(diffMs / (1000 * 60 * 60));
-    // Example: 100 Rs per hour late fee
-    const lateFees = hoursLate * 100; 
+    // Use late fee from settings
+    const lateFeeRate = settings?.lateFeePerHour || 100;
+    const lateFees = hoursLate * lateFeeRate; 
     return { lateFees, hoursLate };
   };
 
@@ -377,12 +379,31 @@ export function ActiveTripsList({ initialRentals }: ActiveTripsListProps) {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="damageCharges" className="text-xs font-bold uppercase">Damage Charges (₹)</Label>
-                <Input 
-                  id="damageCharges" 
-                  type="number" 
-                  value={returnForm.damageCharges}
-                  onChange={(e) => setReturnForm({...returnForm, damageCharges: e.target.value})}
-                />
+                <div className="space-y-2">
+                  <Input 
+                    id="damageCharges" 
+                    type="number" 
+                    value={returnForm.damageCharges}
+                    onChange={(e) => setReturnForm({...returnForm, damageCharges: e.target.value})}
+                  />
+                  {settings?.damageCatalog?.length > 0 && (
+                    <Select onValueChange={(val) => {
+                      const item = settings.damageCatalog.find((i: any) => i.name === val);
+                      if (item) setReturnForm({...returnForm, damageCharges: String(item.price)});
+                    }}>
+                      <SelectTrigger className="h-7 text-[10px] bg-muted/50">
+                        <SelectValue placeholder="Quick Damage Picker" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {settings.damageCatalog.map((item: any) => (
+                          <SelectItem key={item.name} value={item.name} className="text-xs">
+                            {item.name} (₹{item.price})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="fuelCharges" className="text-xs font-bold uppercase">Fuel Charges (₹)</Label>

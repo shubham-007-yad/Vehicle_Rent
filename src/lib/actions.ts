@@ -14,6 +14,111 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+import ShopSettings from "@/models/ShopSettings";
+
+import User from "@/models/User";
+import bcrypt from "bcryptjs";
+import { auth } from "@/auth";
+
+export async function getUsers() {
+  await connectDB();
+  const session = await auth();
+  if ((session?.user as any)?.role !== "Owner") return { error: "Unauthorized" };
+
+  try {
+    const users = await User.find({}, { password: 0 }).sort({ createdAt: -1 });
+    return { success: true, users: JSON.parse(JSON.stringify(users)) };
+  } catch (error) {
+    return { error: "Could not fetch users." };
+  }
+}
+
+export async function createStaffUser(data: any) {
+  await connectDB();
+  const session = await auth();
+  if ((session?.user as any)?.role !== "Owner") return { error: "Unauthorized" };
+
+  try {
+    const { name, email, password, role } = data;
+    const userExists = await User.findOne({ email });
+    if (userExists) return { error: "User already exists." };
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: role || "Staff",
+    });
+
+    revalidatePath("/dashboard/settings");
+    return { success: true, user: JSON.parse(JSON.stringify(newUser)) };
+  } catch (error) {
+    return { error: "Could not create user." };
+  }
+}
+
+export async function deleteUser(id: string) {
+  await connectDB();
+  const session = await auth();
+  if ((session?.user as any)?.role !== "Owner") return { error: "Unauthorized" };
+
+  try {
+    const user = await User.findById(id);
+    if (user?.role === "Owner") return { error: "Cannot delete the Owner account." };
+
+    await User.findByIdAndDelete(id);
+    revalidatePath("/dashboard/settings");
+    return { success: true };
+  } catch (error) {
+    return { error: "Could not delete user." };
+  }
+}
+
+export async function getShopSettings() {
+  await connectDB();
+  try {
+    let settings = await ShopSettings.findOne();
+    if (!settings) {
+      settings = await ShopSettings.create({
+        shopName: "Varanasi Rentals",
+        ownerPhone: "9876543210",
+        address: "Assi Ghat, Varanasi",
+        defaultDepositScooter: 1000,
+        defaultDepositBike: 2000,
+        defaultDepositCar: 5000,
+        lateFeePerHour: 100,
+        damageCatalog: [
+          { name: "Broken Mirror", price: 300 },
+          { name: "Flat Tyre", price: 200 },
+          { name: "Helmet Loss", price: 800 },
+        ],
+      });
+    }
+    return { success: true, settings: JSON.parse(JSON.stringify(settings)) };
+  } catch (error) {
+    console.error("Failed to fetch settings:", error);
+    return { error: "Could not fetch settings." };
+  }
+}
+
+export async function updateShopSettings(data: any) {
+  await connectDB();
+  try {
+    const settings = await ShopSettings.findOneAndUpdate({}, data, {
+      new: true,
+      upsert: true,
+    });
+    revalidatePath("/dashboard/settings");
+    revalidatePath("/dashboard/check-in");
+    revalidatePath("/dashboard/active-trips");
+    return { success: true, settings: JSON.parse(JSON.stringify(settings)) };
+  } catch (error) {
+    console.error("Failed to update settings:", error);
+    return { error: "Could not update settings." };
+  }
+}
+
 export async function handleSignOut() {
   await signOut({ redirectTo: "/login" });
 }

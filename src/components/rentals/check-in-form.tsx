@@ -64,7 +64,7 @@ const formSchema = z.object({
   totalAmount: z.number(),
 });
 
-export function CheckInForm({ availableVehicles }: { availableVehicles: any[] }) {
+export function CheckInForm({ availableVehicles, settings }: { availableVehicles: any[], settings: any }) {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
@@ -78,7 +78,7 @@ export function CheckInForm({ availableVehicles }: { availableVehicles: any[] })
       idPhotoUrl: [], 
       startKm: 0,
       startFuel: 3,
-      depositAmount: 2000,
+      depositAmount: settings?.defaultDepositBike || 2000,
       baseRateAtBooking: 0,
       totalAmount: 0,
     },
@@ -96,8 +96,17 @@ export function CheckInForm({ availableVehicles }: { availableVehicles: any[] })
       
       form.setValue("totalAmount", total);
       form.setValue("baseRateAtBooking", selectedVehicle.baseRatePerDay);
+
+      // Auto-set deposit based on vehicle type from settings
+      if (selectedVehicle.type === "Scooter") {
+        form.setValue("depositAmount", settings?.defaultDepositScooter || 1000);
+      } else if (selectedVehicle.type === "Bike") {
+        form.setValue("depositAmount", settings?.defaultDepositBike || 2000);
+      } else if (selectedVehicle.type === "Car") {
+        form.setValue("depositAmount", settings?.defaultDepositCar || 5000);
+      }
     }
-  }, [selectedVehicle, expectedReturn, form]);
+  }, [selectedVehicle, expectedReturn, form, settings]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsPending(true);

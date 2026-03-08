@@ -63,6 +63,16 @@ function FormControl({ ...props }: React.ComponentProps<"div">) {
   )
 }
 
+function FormDescription({ className, ...props }: React.ComponentProps<"p">) {
+  return (
+    <p
+      data-slot="form-description"
+      className={cn("text-muted-foreground text-[0.8rem]", className)}
+      {...props}
+    />
+  )
+}
+
 function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
   const { error } = useFormField()
   const body = error ? String(error?.message) : props.children
@@ -86,5 +96,6 @@ export {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
   useFormField,
 }

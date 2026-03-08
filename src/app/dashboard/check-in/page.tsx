@@ -1,6 +1,7 @@
 import connectDB from "@/lib/db";
 import Vehicle from "@/models/Vehicle";
 import { CheckInForm } from "@/components/rentals/check-in-form";
+import { getShopSettings } from "@/lib/actions";
 
 async function getAvailableVehicles() {
   await connectDB();
@@ -10,6 +11,7 @@ async function getAvailableVehicles() {
 
 export default async function CheckInPage() {
   const availableVehicles = await getAvailableVehicles();
+  const { settings } = await getShopSettings();
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -18,7 +20,7 @@ export default async function CheckInPage() {
         <p className="text-sm text-muted-foreground">Start a new rental journey for your customer</p>
       </div>
 
-      <CheckInForm availableVehicles={availableVehicles} />
+      <CheckInForm availableVehicles={availableVehicles} settings={settings} />
     </div>
   );
 }
