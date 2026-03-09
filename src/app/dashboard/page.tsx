@@ -9,6 +9,8 @@ import { cn } from "@/lib/utils";
 import { DbErrorCard } from "@/components/db-error-card";
 import { auth } from "@/auth";
 
+export const dynamic = "force-dynamic";
+
 async function getStats() {
   await connectDB();
   

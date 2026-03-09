@@ -4,6 +4,8 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { ShieldAlert } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function SettingsPage() {
   const session = await auth();
   

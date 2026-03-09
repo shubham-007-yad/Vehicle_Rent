@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bike, Clock, AlertCircle } from "lucide-react";
 import { getShopSettings } from "@/lib/actions";
 
+export const dynamic = "force-dynamic";
+
 async function getActiveTrips() {
   await connectDB();
   

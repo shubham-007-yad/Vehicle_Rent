@@ -3,6 +3,8 @@ import Vehicle from "@/models/Vehicle";
 import { CheckInForm } from "@/components/rentals/check-in-form";
 import { getShopSettings } from "@/lib/actions";
 
+export const dynamic = "force-dynamic";
+
 async function getAvailableVehicles() {
   await connectDB();
   const vehicles = await Vehicle.find({ status: "Available" }).sort({ model: 1 });

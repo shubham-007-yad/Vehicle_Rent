@@ -16,6 +16,8 @@ import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
 import { auth } from "@/auth";
 
+export const dynamic = "force-dynamic";
+
 interface InsightsProps {
   searchParams: Promise<{ date?: string }>;
 }

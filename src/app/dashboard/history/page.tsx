@@ -9,6 +9,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { auth } from "@/auth";
 
+export const dynamic = "force-dynamic";
+
 export default async function HistoryPage() {
   const session = await auth();
   const isOwner = (session?.user as any)?.role === "Owner";

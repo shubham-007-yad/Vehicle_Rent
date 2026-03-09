@@ -3,6 +3,8 @@ import { EditProfileForm } from "@/components/settings/edit-profile-form";
 import connectDB from "@/lib/db";
 import User from "@/models/User";
 
+export const dynamic = "force-dynamic";
+
 export default async function ProfilePage() {
   const session = await auth();
   

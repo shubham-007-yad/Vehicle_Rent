@@ -14,6 +14,8 @@ import { buttonVariants } from "@/components/ui/button-variants";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 async function getInventory() {
   await connectDB();
   const vehicles = await Vehicle.find().sort({ createdAt: -1 });
