@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Camera, RefreshCw, X, Plus, Image as ImageIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -8,12 +8,19 @@ import { uploadImage } from "@/lib/actions";
 
 interface KYCCameraProps {
   onImagesChange: (urls: string[]) => void;
+  initialImages?: string[];
 }
 
-export function KYCCamera({ onImagesChange }: KYCCameraProps) {
+export function KYCCamera({ onImagesChange, initialImages = [] }: KYCCameraProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsPending] = useState(false);
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<string[]>(initialImages);
+
+  useEffect(() => {
+    if (initialImages.length > 0) {
+      setImages(initialImages);
+    }
+  }, [initialImages]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

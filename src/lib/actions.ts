@@ -283,7 +283,9 @@ export async function createRental(data: any) {
       ...data,
       startTime: new Date(),
       expectedEndTime: new Date(data.expectedEndTime),
-      idPhotoUrl: validPhotos
+      idPhotoUrl: validPhotos,
+      startInspectionPhotos: data.startInspectionPhotos || [],
+      startDamageHotspots: data.startDamageHotspots || []
     };
 
     // 1. Create Rental Record
@@ -445,6 +447,16 @@ export async function completeRental(rentalId: string, formData: FormData) {
     const rentPaidAtStart = formData.get("rentPaidAtStart") === "true";
     const adjustFromDeposit = formData.get("adjustFromDeposit") === "true";
     const paymentStatus = formData.get("paymentStatus") as "Pending" | "Paid";
+    
+    // Inspection fields
+    const endInspectionPhotos = formData.getAll("endInspectionPhotos") as string[];
+    const endDamageHotspotsRaw = formData.get("endDamageHotspots") as string;
+    let endDamageHotspots = [];
+    try {
+      endDamageHotspots = endDamageHotspotsRaw ? JSON.parse(endDamageHotspotsRaw) : [];
+    } catch (e) {
+      console.error("Failed to parse endDamageHotspots:", e);
+    }
 
     const rental = await Rental.findById(rentalId);
     if (!rental) return { error: "Rental not found." };
@@ -458,6 +470,8 @@ export async function completeRental(rentalId: string, formData: FormData) {
     rental.rentPaidAtStart = rentPaidAtStart;
     rental.adjustFromDeposit = adjustFromDeposit;
     rental.paymentStatus = paymentStatus;
+    rental.endInspectionPhotos = endInspectionPhotos;
+    rental.endDamageHotspots = endDamageHotspots;
     rental.status = "Pending-Payment";
     rental.actualEndTime = new Date();
     await rental.save();
@@ -593,5 +607,28 @@ export async function getRevenueByDateRange(startDate?: string, endDate?: string
   } catch (error) {
     console.error("Failed to fetch revenue:", error);
     return { error: "Could not fetch revenue." };
+  }
+}
+
+export async function searchCustomerByPhone(phone: string) {
+  await connectDB();
+  try {
+    // Find the most recent completed rental for this phone number
+    const lastRental = await Rental.findOne({ 
+      customerPhone: phone,
+      status: "Completed" 
+    })
+    .sort({ actualEndTime: -1 })
+    .lean();
+
+    if (!lastRental) return { success: false };
+
+    return { 
+      success: true, 
+      customer: JSON.parse(JSON.stringify(lastRental)) 
+    };
+  } catch (error) {
+    console.error("Search customer error:", error);
+    return { error: "Failed to search customer." };
   }
 }

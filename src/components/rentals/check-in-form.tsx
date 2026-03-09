@@ -44,10 +44,11 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { createRental } from "@/lib/actions";
+import { createRental, searchCustomerByPhone } from "@/lib/actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { KYCCamera } from "./kyc-camera";
+import { VehicleInspection } from "./vehicle-inspection";
 
 const formSchema = z.object({
   vehicleId: z.string().min(1, "Please select a vehicle"),
@@ -62,11 +63,20 @@ const formSchema = z.object({
   startFuel: z.number().min(1).max(5),
   baseRateAtBooking: z.number(),
   totalAmount: z.number(),
+  startInspectionPhotos: z.array(z.string()).default([]),
+  startDamageHotspots: z.array(z.object({
+    x: z.number(),
+    y: z.number(),
+    type: z.string(),
+    description: z.string().optional(),
+  })).default([]),
 });
 
 export function CheckInForm({ availableVehicles, settings }: { availableVehicles: any[], settings: any }) {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [repeatCustomer, setRepeatCustomer] = useState<any>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -81,8 +91,40 @@ export function CheckInForm({ availableVehicles, settings }: { availableVehicles
       depositAmount: settings?.defaultDepositBike || 2000,
       baseRateAtBooking: 0,
       totalAmount: 0,
+      startInspectionPhotos: [],
+      startDamageHotspots: [],
     },
   });
+
+  // Repeat Customer Detection
+  const phone = form.watch("customerPhone");
+  useEffect(() => {
+    async function checkCustomer() {
+      if (phone.length === 10) {
+        setIsSearching(true);
+        const result = await searchCustomerByPhone(phone);
+        if (result.success && result.customer) {
+          setRepeatCustomer(result.customer);
+          toast.success(`Repeat Customer: ${result.customer.customerName} found!`, {
+            description: "You can auto-fill their previous details.",
+            duration: 5000,
+          });
+        }
+        setIsSearching(false);
+      } else {
+        setRepeatCustomer(null);
+      }
+    }
+    checkCustomer();
+  }, [phone]);
+
+  const autoFillCustomer = () => {
+    if (repeatCustomer) {
+      form.setValue("customerName", repeatCustomer.customerName);
+      form.setValue("idPhotoUrl", repeatCustomer.idPhotoUrl);
+      toast.info("Customer details and KYC photos auto-filled.");
+    }
+  };
 
   // Dynamic calculations
   const expectedReturn = form.watch("expectedEndTime");
@@ -134,6 +176,28 @@ export function CheckInForm({ availableVehicles, settings }: { availableVehicles
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                {repeatCustomer && (
+                  <div className="md:col-span-2 bg-primary/10 border-2 border-primary/20 p-4 rounded-xl flex items-center justify-between animate-in fade-in slide-in-from-top-4 duration-500">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-primary p-2 rounded-full">
+                        <User className="h-4 w-4 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-tight text-primary">Repeat Customer found!</p>
+                        <p className="text-[10px] font-medium text-muted-foreground italic">Last seen on {format(new Date(repeatCustomer.actualEndTime || repeatCustomer.updatedAt), "PPP")}</p>
+                      </div>
+                    </div>
+                    <Button 
+                      type="button" 
+                      variant="default" 
+                      size="sm" 
+                      onClick={autoFillCustomer}
+                      className="font-bold text-[10px] uppercase h-8 px-4"
+                    >
+                      Auto-fill Details
+                    </Button>
+                  </div>
+                )}
                 <FormField
                   control={form.control}
                   name="customerName"
@@ -157,6 +221,11 @@ export function CheckInForm({ availableVehicles, settings }: { availableVehicles
                         <div className="relative">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-bold">+91</span>
                           <Input className="pl-12 font-mono" placeholder="9876543210" {...field} />
+                          {isSearching && (
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                            </div>
+                          )}
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -172,7 +241,10 @@ export function CheckInForm({ availableVehicles, settings }: { availableVehicles
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <KYCCamera onImagesChange={(urls) => field.onChange(urls)} />
+                          <KYCCamera 
+                            initialImages={field.value}
+                            onImagesChange={(urls) => field.onChange(urls)} 
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -300,6 +372,16 @@ export function CheckInForm({ availableVehicles, settings }: { availableVehicles
                       <FormMessage />
                     </FormItem>
                   )}
+                />
+              </CardContent>
+            </Card>
+
+            <Card className="border-primary/10">
+              <CardContent className="pt-6">
+                <VehicleInspection 
+                  vehicleType={selectedVehicle?.type || "Bike"}
+                  onPhotosChange={(urls) => form.setValue("startInspectionPhotos", urls)}
+                  onHotspotsChange={(hotspots) => form.setValue("startDamageHotspots", hotspots)}
                 />
               </CardContent>
             </Card>

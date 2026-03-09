@@ -9,7 +9,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import { Maximize2, Download, Printer, MessageCircle } from "lucide-react";
+import { Maximize2, Download, Printer, MessageCircle, Camera, Clock, CheckCircle2, ChevronDown, ChevronUp } from "lucide-react";
+import { useState } from "react";
+import { VehicleInspection } from "./vehicle-inspection";
 
 interface RentalDetailsModalProps {
   rental: any;
@@ -22,12 +24,30 @@ export function RentalDetailsModal({
   isOpen,
   onClose,
 }: RentalDetailsModalProps) {
+  const [showInspections, setShowInspections] = useState(false);
   if (!rental) return null;
 
   const vehicle = rental.vehicleId;
 
   const printImage = (url: string) => {
-    // ... Existing printImage implementation ...
+    const win = window.open("");
+    if (!win) return;
+    win.document.write(`
+      <html>
+        <head>
+          <title>Print Document - Varanasi Rentals</title>
+          <style>
+            body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: white; }
+            img { max-width: 100%; max-height: 100%; object-fit: contain; }
+            @media print { img { max-width: 100%; max-height: 100%; } }
+          </style>
+        </head>
+        <body onload="window.print();window.close()">
+          <img src="${url}" />
+        </body>
+      </html>
+    `);
+    win.document.close();
   };
 
   const printReceipt = () => {
@@ -368,6 +388,62 @@ Safe travels in Kashi! 🕉️`;
             </div>
           </div>
         </div>
+
+        <div className="h-[1px] bg-border my-4" />
+
+        {/* Condition Reports Toggle */}
+        <Button 
+          variant="outline" 
+          className="w-full flex justify-between items-center py-6 border-dashed hover:bg-muted/50 transition-all"
+          onClick={() => setShowInspections(!showInspections)}
+        >
+          <div className="flex items-center gap-2 font-bold text-primary uppercase tracking-wider text-xs">
+            <Camera size={16} /> Vehicle Condition Inspection Reports
+          </div>
+          {showInspections ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        </Button>
+
+        {showInspections && (
+          <div className="mt-4 space-y-8 animate-in slide-in-from-top-2 duration-300">
+            {/* Pick-up Inspection */}
+            <div className="bg-primary/5 p-4 rounded-xl border border-primary/20">
+               <h4 className="text-[10px] font-black uppercase tracking-widest text-primary mb-4 flex items-center gap-2">
+                <Clock size={12} /> Inspection at Pick-up (Handover)
+              </h4>
+              <VehicleInspection 
+                readonly 
+                title="Pick-up Condition"
+                vehicleType={vehicle?.type}
+                initialPhotos={rental.startInspectionPhotos}
+                initialHotspots={rental.startDamageHotspots}
+                onPhotosChange={() => {}}
+                onHotspotsChange={() => {}}
+              />
+            </div>
+
+            {/* Return Inspection */}
+            {rental.status === "Completed" || rental.status === "Pending-Payment" ? (
+              <div className="bg-green-50/50 dark:bg-green-950/20 p-4 rounded-xl border border-green-200 dark:border-green-900/50">
+                <h4 className="text-[10px] font-black uppercase tracking-widest text-green-600 mb-4 flex items-center gap-2">
+                  <CheckCircle2 size={12} /> Inspection at Return (Drop-off)
+                </h4>
+                <VehicleInspection 
+                  readonly 
+                  title="Return Condition"
+                  vehicleType={vehicle?.type}
+                  initialPhotos={rental.endInspectionPhotos}
+                  initialHotspots={rental.endDamageHotspots}
+                  onPhotosChange={() => {}}
+                  onHotspotsChange={() => {}}
+                />
+              </div>
+            ) : (
+              <div className="p-8 border-2 border-dashed rounded-xl text-center">
+                <p className="text-sm text-muted-foreground italic">Vehicle is still on the road. Return inspection pending.</p>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="h-[1px] bg-border my-4" />
 

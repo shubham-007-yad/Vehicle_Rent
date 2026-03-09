@@ -18,7 +18,8 @@ import {
   Eye, 
   Calendar as CalendarIcon,
   Filter,
-  X
+  X,
+  Users
 } from "lucide-react";
 import { format, subDays, startOfMonth, endOfMonth, isWithinInterval } from "date-fns";
 import { RentalDetailsModal } from "./rental-details-modal";
@@ -34,11 +35,29 @@ interface RentalHistoryTableProps {
 export function RentalHistoryTable({ initialRentals }: RentalHistoryTableProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  // Calculate trip counts per customer for badges
+  const customerTripCounts: Record<string, number> = {};
+  // Sort by date to count trips in order
+  const sortedByDate = [...initialRentals].sort((a, b) => 
+    new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+  );
+  
+  const tripOrderMap: Record<string, number> = {};
+  sortedByDate.forEach((rental) => {
+    const phone = rental.customerPhone;
+    customerTripCounts[phone] = (customerTripCounts[phone] || 0) + 1;
+    tripOrderMap[rental._id] = customerTripCounts[phone];
+  });
+
   const [selectedRental, setSelectedRental] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showOnlyRepeat, setShowOnlyRepeat] = useState(false);
 
   // Filter logic
   const filteredRentals = initialRentals.filter((rental) => {
+    const isRepeat = tripOrderMap[rental._id] > 1;
+    if (showOnlyRepeat && !isRepeat) return false;
+
     const matchesSearch = 
       rental.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       rental.customerPhone.includes(searchQuery) ||
@@ -118,6 +137,20 @@ export function RentalHistoryTable({ initialRentals }: RentalHistoryTableProps) 
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
+
+          <Button
+            variant={showOnlyRepeat ? "default" : "outline"}
+            size="sm"
+            className={cn(
+              "h-9 px-3 text-xs gap-2 transition-all",
+              showOnlyRepeat && "bg-orange-600 hover:bg-orange-700 border-orange-600"
+            )}
+            onClick={() => setShowOnlyRepeat(!showOnlyRepeat)}
+          >
+            <Users size={14} className={cn(showOnlyRepeat ? "text-white" : "text-orange-600")} />
+            <span className="hidden sm:inline">Repeat Customers</span>
+            {showOnlyRepeat && <X size={12} className="ml-1" />}
+          </Button>
           
           <div className="flex gap-1 overflow-x-auto pb-1 md:pb-0">
             <Button 
@@ -227,7 +260,18 @@ export function RentalHistoryTable({ initialRentals }: RentalHistoryTableProps) 
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col">
-                      <span className="font-semibold">{rental.customerName}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold">{rental.customerName}</span>
+                        {tripOrderMap[rental._id] > 1 ? (
+                          <Badge variant="outline" className="text-[10px] h-5 px-1.5 border-primary/30 text-primary bg-primary/5 font-black">
+                            Trip #{tripOrderMap[rental._id]}
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-[10px] h-5 px-1.5 text-muted-foreground font-medium">
+                            Trip #1
+                          </Badge>
+                        )}
+                      </div>
                       <span className="text-xs text-muted-foreground">{rental.customerPhone}</span>
                     </div>
                   </TableCell>

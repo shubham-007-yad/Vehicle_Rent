@@ -31,7 +31,15 @@ export default async function HistoryPage() {
   // Calculate some stats
   const totalRentals = rentals?.length || 0;
   const totalRevenue = rentals?.reduce((sum: number, r: any) => sum + r.totalAmount, 0) || 0;
-  const uniqueCustomers = new Set(rentals?.map((r: any) => r.customerPhone)).size;
+  
+  // Calculate Repeat Customers
+  const customerTripCounts: Record<string, number> = {};
+  rentals?.forEach((r: any) => {
+    customerTripCounts[r.customerPhone] = (customerTripCounts[r.customerPhone] || 0) + 1;
+  });
+  
+  const repeatCustomerCount = Object.values(customerTripCounts).filter(count => count > 1).length;
+  const uniqueCustomers = Object.keys(customerTripCounts).length;
 
   return (
     <div className="space-y-6">
@@ -67,14 +75,16 @@ export default async function HistoryPage() {
           </Card>
         )}
 
-        <Card>
+        <Card className="border-l-4 border-l-orange-500 bg-orange-500/5 dark:bg-orange-500/10">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium italic">Repeat Customers</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-black uppercase tracking-widest text-orange-600">Returning Customers</CardTitle>
+            <Users className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{uniqueCustomers}</div>
-            <p className="text-xs text-muted-foreground font-semibold">Unique Customers Served</p>
+            <div className="text-2xl font-black text-orange-700">
+              {repeatCustomerCount}
+            </div>
+            <p className="text-[10px] text-orange-600/70 font-bold uppercase tracking-tight">Active Loyal Customers</p>
           </CardContent>
         </Card>
       </div>
