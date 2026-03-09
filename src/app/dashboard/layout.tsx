@@ -5,7 +5,7 @@ import { BottomNav } from "@/components/bottom-nav";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Bike, User, Settings, LogOut, ShieldCheck, ChevronDown } from "lucide-react";
+import { Bike, User, Settings, LogOut, ShieldCheck, ChevronDown, Sun, Moon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,9 +18,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { handleSignOut } from "@/lib/actions";
 import { useSession } from "next-auth/react";
+import { useTheme } from "next-themes";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { data: session } = useSession();
+  const { setTheme, theme } = useTheme();
   const [time, setTime] = useState(new Date());
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
@@ -118,6 +120,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 >
                   <Settings size={16} />
                   <span>Shop Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="cursor-pointer gap-2 py-2 outline-none flex items-center px-3"
+                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                >
+                  <div className="relative flex items-center justify-center w-4 h-4 mr-1">
+                    <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                    <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                  </div>
+                  <span>{mounted ? (theme === "dark" ? "Light Mode" : "Dark Mode") : "Theme"}</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
