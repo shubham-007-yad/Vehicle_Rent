@@ -30,9 +30,10 @@ import { DateRange } from "react-day-picker";
 
 interface RentalHistoryTableProps {
   initialRentals: any[];
+  isAdmin?: boolean;
 }
 
-export function RentalHistoryTable({ initialRentals }: RentalHistoryTableProps) {
+export function RentalHistoryTable({ initialRentals, isAdmin = false }: RentalHistoryTableProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   // Calculate trip counts per customer for badges
@@ -309,10 +310,12 @@ export function RentalHistoryTable({ initialRentals }: RentalHistoryTableProps) 
                 <span className="ml-2 font-bold">{filteredRentals.length}</span>
             </div>
          </div>
-         <div className="text-sm">
-            <span className="text-muted-foreground">Total Revenue:</span>
-            <span className="ml-2 text-lg font-bold text-primary italic">₹{totalRevenue.toLocaleString("en-IN")}</span>
-         </div>
+         {isAdmin && (
+           <div className="text-sm">
+              <span className="text-muted-foreground">Total Revenue:</span>
+              <span className="ml-2 text-lg font-bold text-primary italic">₹{totalRevenue.toLocaleString("en-IN")}</span>
+           </div>
+         )}
       </div>
 
       <RentalDetailsModal

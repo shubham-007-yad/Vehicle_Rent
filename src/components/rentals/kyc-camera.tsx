@@ -11,13 +11,15 @@ interface KYCCameraProps {
   initialImages?: string[];
 }
 
-export function KYCCamera({ onImagesChange, initialImages = [] }: KYCCameraProps) {
+const EMPTY_ARRAY: string[] = [];
+
+export function KYCCamera({ onImagesChange, initialImages = EMPTY_ARRAY }: KYCCameraProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsPending] = useState(false);
   const [images, setImages] = useState<string[]>(initialImages);
 
   useEffect(() => {
-    if (initialImages.length > 0) {
+    if (initialImages && initialImages.length > 0) {
       setImages(initialImages);
     }
   }, [initialImages]);

@@ -415,9 +415,7 @@ Safe travels in Kashi! 🕉️`;
                 title="Pick-up Condition"
                 vehicleType={vehicle?.type}
                 initialPhotos={rental.startInspectionPhotos}
-                initialHotspots={rental.startDamageHotspots}
                 onPhotosChange={() => {}}
-                onHotspotsChange={() => {}}
               />
             </div>
 
@@ -432,9 +430,7 @@ Safe travels in Kashi! 🕉️`;
                   title="Return Condition"
                   vehicleType={vehicle?.type}
                   initialPhotos={rental.endInspectionPhotos}
-                  initialHotspots={rental.endDamageHotspots}
                   onPhotosChange={() => {}}
-                  onHotspotsChange={() => {}}
                 />
               </div>
             ) : (

@@ -78,7 +78,7 @@ const staffFormSchema = z.object({
   name: z.string().min(2, "Name is required"),
   email: z.string().email("Invalid email"),
   password: z.string().min(6, "Minimum 6 characters"),
-  role: z.enum(["Staff", "Owner"]),
+  role: z.enum(["staff", "admin"]),
 });
 
 export function ShopSettingsForm({ initialSettings, users }: { initialSettings: any, users: any[] }) {
@@ -110,7 +110,7 @@ export function ShopSettingsForm({ initialSettings, users }: { initialSettings: 
       name: "",
       email: "",
       password: "",
-      role: "Staff",
+      role: "staff",
     },
   });
 
@@ -388,7 +388,7 @@ export function ShopSettingsForm({ initialSettings, users }: { initialSettings: 
                         </span>
                       </div>
                     </div>
-                    {user.role !== "Owner" && (
+                    {user.role !== "admin" && (
                       <Button variant="ghost" size="icon" onClick={() => handleDeleteUser(user._id)} className="h-8 w-8 text-red-500">
                         <Trash2 size={16} />
                       </Button>

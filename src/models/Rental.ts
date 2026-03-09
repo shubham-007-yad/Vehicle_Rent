@@ -28,8 +28,6 @@ export interface IRental extends Document {
   status: "Active" | "Pending-Payment" | "Completed" | "Cancelled";
   startInspectionPhotos: string[];
   endInspectionPhotos: string[];
-  startDamageHotspots: { x: number; y: number; type: string; description?: string }[];
-  endDamageHotspots: { x: number; y: number; type: string; description?: string }[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -74,22 +72,6 @@ const RentalSchema: Schema = new Schema(
     },
     startInspectionPhotos: { type: [String], default: [] },
     endInspectionPhotos: { type: [String], default: [] },
-    startDamageHotspots: [
-      {
-        x: { type: Number },
-        y: { type: Number },
-        type: { type: String },
-        description: { type: String },
-      },
-    ],
-    endDamageHotspots: [
-      {
-        x: { type: Number },
-        y: { type: Number },
-        type: { type: String },
-        description: { type: String },
-      },
-    ],
   },
   { timestamps: true }
 );

@@ -89,7 +89,7 @@ export default async function HistoryPage() {
         </Card>
       </div>
 
-      <RentalHistoryTable initialRentals={rentals || []} />
+      <RentalHistoryTable initialRentals={rentals || []} isAdmin={isOwner} />
     </div>
   );
 }

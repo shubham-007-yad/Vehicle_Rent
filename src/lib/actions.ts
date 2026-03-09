@@ -284,8 +284,7 @@ export async function createRental(data: any) {
       startTime: new Date(),
       expectedEndTime: new Date(data.expectedEndTime),
       idPhotoUrl: validPhotos,
-      startInspectionPhotos: data.startInspectionPhotos || [],
-      startDamageHotspots: data.startDamageHotspots || []
+      startInspectionPhotos: data.startInspectionPhotos || []
     };
 
     // 1. Create Rental Record
@@ -312,6 +311,10 @@ export async function createRental(data: any) {
 }
 
 export async function addVehicle(formData: FormData) {
+  const session = await auth();
+  if (!session || (session.user as any).role !== "Owner") {
+    return { error: "Only Owners can add vehicles." };
+  }
   await connectDB();
   
   const rcFile = formData.get("rcFile") as File;
@@ -378,6 +381,10 @@ export async function addVehicle(formData: FormData) {
 }
 
 export async function updateVehicle(id: string, formData: FormData) {
+  const session = await auth();
+  if (!session || (session.user as any).role !== "Owner") {
+    return { error: "Only Owners can update vehicles." };
+  }
   await connectDB();
   
   const updates: any = {
@@ -420,6 +427,10 @@ export async function updateVehicle(id: string, formData: FormData) {
 }
 
 export async function deleteVehicle(id: string) {
+  const session = await auth();
+  if (!session || (session.user as any).role !== "Owner") {
+    return { error: "Only Owners can delete vehicles." };
+  }
   await connectDB();
   
   try {
@@ -450,13 +461,6 @@ export async function completeRental(rentalId: string, formData: FormData) {
     
     // Inspection fields
     const endInspectionPhotos = formData.getAll("endInspectionPhotos") as string[];
-    const endDamageHotspotsRaw = formData.get("endDamageHotspots") as string;
-    let endDamageHotspots = [];
-    try {
-      endDamageHotspots = endDamageHotspotsRaw ? JSON.parse(endDamageHotspotsRaw) : [];
-    } catch (e) {
-      console.error("Failed to parse endDamageHotspots:", e);
-    }
 
     const rental = await Rental.findById(rentalId);
     if (!rental) return { error: "Rental not found." };
@@ -471,7 +475,6 @@ export async function completeRental(rentalId: string, formData: FormData) {
     rental.adjustFromDeposit = adjustFromDeposit;
     rental.paymentStatus = paymentStatus;
     rental.endInspectionPhotos = endInspectionPhotos;
-    rental.endDamageHotspots = endDamageHotspots;
     rental.status = "Pending-Payment";
     rental.actualEndTime = new Date();
     await rental.save();

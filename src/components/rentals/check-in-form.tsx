@@ -64,12 +64,6 @@ const formSchema = z.object({
   baseRateAtBooking: z.number(),
   totalAmount: z.number(),
   startInspectionPhotos: z.array(z.string()),
-  startDamageHotspots: z.array(z.object({
-    x: z.number(),
-    y: z.number(),
-    type: z.string(),
-    description: z.string().optional(),
-  })),
 });
 
 export function CheckInForm({ availableVehicles, settings }: { availableVehicles: any[], settings: any }) {
@@ -92,7 +86,6 @@ export function CheckInForm({ availableVehicles, settings }: { availableVehicles
       baseRateAtBooking: 0,
       totalAmount: 0,
       startInspectionPhotos: [],
-      startDamageHotspots: [],
     },
   });
 
@@ -381,7 +374,6 @@ export function CheckInForm({ availableVehicles, settings }: { availableVehicles
                 <VehicleInspection 
                   vehicleType={selectedVehicle?.type || "Bike"}
                   onPhotosChange={(urls) => form.setValue("startInspectionPhotos", urls)}
-                  onHotspotsChange={(hotspots) => form.setValue("startDamageHotspots", hotspots)}
                 />
               </CardContent>
             </Card>

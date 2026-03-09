@@ -35,6 +35,13 @@ export function Sidebar() {
   const { data: session } = useSession();
   const user = session?.user;
 
+  const filteredMenuItems = menuItems.filter((item) => {
+    if (item.name === "Daily Insights") {
+      return user?.role === "Owner";
+    }
+    return true;
+  });
+
   return (
     <div className="w-64 border-r bg-card/50 backdrop-blur-md flex flex-col h-full shrink-0">
       <div className="p-6">
@@ -45,7 +52,7 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 px-4 space-y-1 mt-4">
-        {menuItems.map((item) => {
+        {filteredMenuItems.map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link

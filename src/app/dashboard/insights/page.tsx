@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
-import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 
 interface InsightsProps {
   searchParams: Promise<{ date?: string }>;
@@ -72,6 +72,11 @@ async function getDailyInsights(dateString: string) {
 }
 
 export default async function DailyInsightsPage({ searchParams }: InsightsProps) {
+  const session = await auth();
+  if (!session || (session.user as any).role !== "Owner") {
+    redirect("/dashboard");
+  }
+
   const params = await searchParams;
   const today = new Date().toISOString().split('T')[0];
   const selectedDate = params.date || today;

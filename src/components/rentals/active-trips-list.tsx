@@ -74,7 +74,6 @@ export function ActiveTripsList({ initialRentals, settings }: ActiveTripsListPro
     rentPaidAtStart: false,
     adjustFromDeposit: false,
     endInspectionPhotos: [] as string[],
-    endDamageHotspots: [] as any[]
   });
 
   const openDocsModal = (rental: any) => {
@@ -92,7 +91,6 @@ export function ActiveTripsList({ initialRentals, settings }: ActiveTripsListPro
       rentPaidAtStart: false,
       adjustFromDeposit: false,
       endInspectionPhotos: [],
-      endDamageHotspots: []
     });
     setIsReturnModalOpen(true);
   };
@@ -114,7 +112,6 @@ export function ActiveTripsList({ initialRentals, settings }: ActiveTripsListPro
     returnForm.endInspectionPhotos.forEach((url) => {
       formData.append("endInspectionPhotos", url);
     });
-    formData.append("endDamageHotspots", JSON.stringify(returnForm.endDamageHotspots));
     
     // Calculate total
     const billing = calculateFinalBill(selectedRental, returnForm);
@@ -382,9 +379,7 @@ export function ActiveTripsList({ initialRentals, settings }: ActiveTripsListPro
                     readonly 
                     vehicleType={selectedRental?.vehicleId?.type}
                     initialPhotos={selectedRental?.startInspectionPhotos}
-                    initialHotspots={selectedRental?.startDamageHotspots}
                     onPhotosChange={() => {}}
-                    onHotspotsChange={() => {}}
                   />
                 </div>
 
@@ -431,7 +426,6 @@ export function ActiveTripsList({ initialRentals, settings }: ActiveTripsListPro
                       title="Mark New Damages"
                       vehicleType={selectedRental?.vehicleId?.type}
                       onPhotosChange={(urls) => setReturnForm({...returnForm, endInspectionPhotos: urls})}
-                      onHotspotsChange={(hotspots) => setReturnForm({...returnForm, endDamageHotspots: hotspots})}
                     />
                   </div>
                 </div>
