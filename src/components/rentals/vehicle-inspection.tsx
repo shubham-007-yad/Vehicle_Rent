@@ -147,7 +147,7 @@ export function VehicleInspection({
               onClick={handleDiagramClick}
             >
               {/* Simple Car/Bike Outline */}
-              {vehicleType === "Car" ? (
+              {(vehicleType || "Bike") === "Car" ? (
                 <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-40">
                   <path d="M50 150 L350 150 L350 100 L300 100 L250 50 L150 50 L100 100 L50 100 Z" />
                   <circle cx="100" cy="150" r="20" />
@@ -216,7 +216,7 @@ export function VehicleInspection({
                   <Label className="text-[9px] font-bold uppercase">Type</Label>
                   <Select 
                     value={hotspots[selectedHotspot].type}
-                    onValueChange={(v) => updateHotspot(selectedHotspot, { type: v })}
+                    onValueChange={(v: string) => updateHotspot(selectedHotspot, { type: v })}
                   >
                     <SelectTrigger className="h-8 text-xs font-bold">
                       <SelectValue />
