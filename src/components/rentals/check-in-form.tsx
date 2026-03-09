@@ -63,13 +63,13 @@ const formSchema = z.object({
   startFuel: z.number().min(1).max(5),
   baseRateAtBooking: z.number(),
   totalAmount: z.number(),
-  startInspectionPhotos: z.array(z.string()).default([]),
+  startInspectionPhotos: z.array(z.string()),
   startDamageHotspots: z.array(z.object({
     x: z.number(),
     y: z.number(),
     type: z.string(),
     description: z.string().optional(),
-  })).default([]),
+  })),
 });
 
 export function CheckInForm({ availableVehicles, settings }: { availableVehicles: any[], settings: any }) {

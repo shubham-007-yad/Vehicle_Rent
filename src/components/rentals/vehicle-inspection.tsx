@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Plus, Trash2, Camera, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -53,6 +53,14 @@ export function VehicleInspection({
   const [photos, setPhotos] = useState<string[]>(initialPhotos);
   const [hotspots, setHotspots] = useState<DamageHotspot[]>(initialHotspots);
   const [selectedHotspot, setSelectedHotspot] = useState<number | null>(null);
+
+  useEffect(() => {
+    setPhotos(initialPhotos);
+  }, [initialPhotos]);
+
+  useEffect(() => {
+    setHotspots(initialHotspots);
+  }, [initialHotspots]);
 
   const handleDiagramClick = (e: React.MouseEvent<SVGSVGElement>) => {
     if (readonly) return;
