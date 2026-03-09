@@ -414,7 +414,7 @@ export function ActiveTripsList({ initialRentals, settings }: ActiveTripsListPro
                         <Label htmlFor="paymentStatus" className="text-[10px] md:text-xs font-black uppercase text-green-700">Payment Status</Label>
                         <Select 
                           value={returnForm.paymentStatus} 
-                          onValueChange={(val) => setReturnForm({...returnForm, paymentStatus: (val as "Paid" | "Pending") || "Paid"})}
+                          onValueChange={(val: string | null) => setReturnForm({...returnForm, paymentStatus: (val as "Paid" | "Pending") || "Paid"})}
                         >
                           <SelectTrigger id="paymentStatus" className="h-12 md:h-16 border-2 border-green-500/30 font-black text-sm md:text-lg rounded-lg md:rounded-xl">
                             <SelectValue />
@@ -457,12 +457,11 @@ export function ActiveTripsList({ initialRentals, settings }: ActiveTripsListPro
                             onChange={(e) => setReturnForm({...returnForm, damageCharges: e.target.value})}
                             className="font-black text-lg md:text-2xl text-red-500 h-12 md:h-14 border-2 rounded-lg md:rounded-xl"
                           />
-                          {settings?.damageCatalog?.length > 0 && (
-                            <Select onValueChange={(val) => {
-                              const item = settings.damageCatalog.find((i: any) => i.name === val);
-                              if (item) setReturnForm({...returnForm, damageCharges: String(item.price)});
-                            }}>
-                              <SelectTrigger className="h-8 md:h-10 text-[10px] bg-white font-bold rounded-lg border-primary/20">
+                                                  {settings?.damageCatalog?.length > 0 && (
+                                                    <Select onValueChange={(val: string | null) => {
+                                                      const item = settings.damageCatalog.find((i: any) => i.name === val);
+                                                      if (item) setReturnForm({...returnForm, damageCharges: String(item.price)});
+                                                    }}>                              <SelectTrigger className="h-8 md:h-10 text-[10px] bg-white font-bold rounded-lg border-primary/20">
                                 <SelectValue placeholder="Quick Damage Catalog" />
                               </SelectTrigger>
                               <SelectContent>

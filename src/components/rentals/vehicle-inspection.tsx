@@ -216,7 +216,7 @@ export function VehicleInspection({
                   <Label className="text-[9px] font-bold uppercase">Type</Label>
                   <Select 
                     value={hotspots[selectedHotspot].type}
-                    onValueChange={(v: string) => updateHotspot(selectedHotspot, { type: v })}
+                    onValueChange={(v: string | null) => updateHotspot(selectedHotspot, { type: v || "Other" })}
                   >
                     <SelectTrigger className="h-8 text-xs font-bold">
                       <SelectValue />
