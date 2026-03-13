@@ -213,7 +213,17 @@ export function CheckInForm({ availableVehicles, settings }: { availableVehicles
                       <FormControl>
                         <div className="relative">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-bold">+91</span>
-                          <Input className="pl-12 font-mono" placeholder="9876543210" {...field} />
+                          <Input 
+                            type="tel"
+                            maxLength={10}
+                            className="pl-12 font-mono" 
+                            placeholder="9876543210" 
+                            {...field} 
+                            onChange={(e) => {
+                              const value = e.target.value.replace(/\D/g, "");
+                              field.onChange(value);
+                            }}
+                          />
                           {isSearching && (
                             <div className="absolute right-3 top-1/2 -translate-y-1/2">
                               <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />

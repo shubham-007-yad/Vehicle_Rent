@@ -210,7 +210,17 @@ export function ShopSettingsForm({ initialSettings, users }: { initialSettings: 
                           <FormControl>
                             <div className="relative">
                               <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                              <Input className="pl-9 font-mono h-10" placeholder="9876543210" {...field} />
+                              <Input 
+                                type="tel"
+                                maxLength={10}
+                                className="pl-9 font-mono h-10" 
+                                placeholder="9876543210" 
+                                {...field} 
+                                onChange={(e) => {
+                                  const value = e.target.value.replace(/\D/g, "");
+                                  field.onChange(value);
+                                }}
+                              />
                             </div>
                           </FormControl>
                           <FormMessage />

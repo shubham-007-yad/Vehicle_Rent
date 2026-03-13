@@ -321,7 +321,17 @@ export function EditProfileForm({ user }: { user: any }) {
                           <FormControl>
                             <div className="relative">
                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-bold">+91</span>
-                              <Input className="pl-12 font-mono h-11" placeholder="9876543210" {...field} />
+                              <Input 
+                                type="tel"
+                                maxLength={10}
+                                className="pl-12 font-mono h-11" 
+                                placeholder="9876543210" 
+                                {...field} 
+                                onChange={(e) => {
+                                  const value = e.target.value.replace(/\D/g, "");
+                                  field.onChange(value);
+                                }}
+                              />
                             </div>
                           </FormControl>
                           <FormMessage />
