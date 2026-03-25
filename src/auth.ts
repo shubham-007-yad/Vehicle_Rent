@@ -7,34 +7,37 @@ import { authConfig } from "./auth.config";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  trustHost: true,
-  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
   providers: [
     Credentials({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        await connectDB();
-        const user = await User.findOne({ email: credentials.email });
+        try {
+          await connectDB();
+          const user = await User.findOne({ email: credentials.email });
 
-        if (!user || !user.password) {
+          if (!user || !user.password) {
+            return null;
+          }
+
+          const isValid = await bcrypt.compare(
+            credentials.password as string,
+            user.password
+          );
+
+          if (!isValid) return null;
+
+          return {
+            id: user._id.toString(),
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            image: user.profilePictureUrl,
+          };
+        } catch (error) {
+          console.error("❌ Auth Error:", error);
           return null;
         }
-
-        const isValid = await bcrypt.compare(
-          credentials.password as string,
-          user.password
-        );
-
-        if (!isValid) return null;
-
-        return {
-          id: user._id.toString(),
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          image: user.profilePictureUrl,
-        };
       },
     }),
   ],
